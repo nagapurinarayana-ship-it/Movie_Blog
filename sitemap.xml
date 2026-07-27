@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://your-github-username.github.io/Movie_Blog/</loc>
+    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/</loc>
   </url>
   <url>
-    <loc>https://your-github-username.github.io/Movie_Blog/pages/about.html</loc>
+    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/about.html</loc>
   </url>
   <url>
-    <loc>https://your-github-username.github.io/Movie_Blog/pages/contact.html</loc>
+    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/contact.html</loc>
+  </url>
+  <url>
+    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/search.html</loc>
+  </url>
+  <url>
+    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/category.html</loc>
   </url>
 </urlset>

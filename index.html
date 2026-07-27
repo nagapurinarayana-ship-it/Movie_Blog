@@ -10,89 +10,100 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
-background:#111;
-color:#fff;
+background:#0d0d0d;
+color:white;
 }
 
 header{
-background:#e50914;
-padding:20px;
-text-align:center;
-font-size:30px;
-font-weight:bold;
+background:#111;
+padding:18px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
 }
 
-nav{
-background:#222;
-padding:12px;
-text-align:center;
+.logo{
+font-size:30px;
+font-weight:bold;
+color:#ff3d3d;
 }
 
 nav a{
 color:white;
 text-decoration:none;
-margin:15px;
-font-weight:bold;
+margin-left:20px;
 }
 
 .hero{
-padding:40px 20px;
+height:420px;
+background:linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.8)),url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop");
+background-size:cover;
+background-position:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
 text-align:center;
+padding:20px;
 }
 
 .hero h1{
-font-size:40px;
+font-size:48px;
 margin-bottom:10px;
 }
 
 .hero p{
+font-size:20px;
 color:#ddd;
+margin-bottom:20px;
 }
 
-.search{
-margin-top:20px;
-}
-
-.search input{
-width:80%;
-max-width:400px;
-padding:12px;
+.hero input{
+width:90%;
+max-width:500px;
+padding:14px;
+border-radius:30px;
 border:none;
-border-radius:25px;
 font-size:16px;
+}
+
+.section-title{
+font-size:28px;
+padding:25px;
 }
 
 .movies{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
 gap:20px;
-padding:30px;
+padding:20px;
 }
 
 .card{
-background:#1e1e1e;
+background:#1b1b1b;
 border-radius:12px;
 overflow:hidden;
-transition:0.3s;
+transition:.3s;
 }
 
 .card:hover{
-transform:scale(1.03);
+transform:scale(1.05);
 }
 
 .card img{
 width:100%;
-height:320px;
+height:300px;
 object-fit:cover;
 }
 
-.card h2{
+.card h3{
 padding:10px;
-font-size:20px;
 }
 
 .card p{
@@ -101,11 +112,11 @@ color:#bbb;
 }
 
 footer{
-background:#000;
+margin-top:40px;
+background:#111;
+padding:25px;
 text-align:center;
-padding:20px;
-margin-top:30px;
-color:#aaa;
+color:#999;
 }
 </style>
 
@@ -114,52 +125,54 @@ color:#aaa;
 <body>
 
 <header>
-🎬 Movie Hub
-</header>
+
+<div class="logo">🎬 Movie Hub</div>
 
 <nav>
 <a href="#">Home</a>
+<a href="#">Trending</a>
 <a href="#">Latest</a>
 <a href="#">Reviews</a>
-<a href="#">Trending</a>
 </nav>
+
+</header>
 
 <section class="hero">
 
-<h1>Latest Movies & Reviews</h1>
+<h1>Discover Amazing Movies</h1>
 
-<p>Find Ratings, Reviews and Trending Movies.</p>
+<p>Search Movies • Ratings • Reviews • Trailers</p>
 
-<div class="search">
-<input type="text" placeholder="Search Movies...">
-</div>
+<input type="text" placeholder="Search your favourite movie...">
 
 </section>
+
+<h2 class="section-title">🔥 Trending Movies</h2>
 
 <section class="movies">
 
 <div class="card">
-<img src="https://picsum.photos/400/600?1">
-<h2>Movie Title</h2>
-<p>Rating ⭐ 8.5/10</p>
+<img src="https://picsum.photos/300/450?random=1">
+<h3>Coming Soon</h3>
+<p>⭐ Rating Coming Soon</p>
 </div>
 
 <div class="card">
-<img src="https://picsum.photos/400/600?2">
-<h2>Movie Title</h2>
-<p>Rating ⭐ 8.8/10</p>
+<img src="https://picsum.photos/300/450?random=2">
+<h3>Coming Soon</h3>
+<p>⭐ Rating Coming Soon</p>
 </div>
 
 <div class="card">
-<img src="https://picsum.photos/400/600?3">
-<h2>Movie Title</h2>
-<p>Rating ⭐ 9.0/10</p>
+<img src="https://picsum.photos/300/450?random=3">
+<h3>Coming Soon</h3>
+<p>⭐ Rating Coming Soon</p>
 </div>
 
 <div class="card">
-<img src="https://picsum.photos/400/600?4">
-<h2>Movie Title</h2>
-<p>Rating ⭐ 8.2/10</p>
+<img src="https://picsum.photos/300/450?random=4">
+<h3>Coming Soon</h3>
+<p>⭐ Rating Coming Soon</p>
 </div>
 
 </section>

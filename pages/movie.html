@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Movie Details — Movie Hub</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="logo">🎬 Movie Hub</a>
+    </div>
+  </header>
+  <main class="container">
+    <div id="movieDetails">Loading…</div>
+  </main>
+  <script>
+    // simple client-only details renderer
+    (async function(){
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      if(!id) return document.getElementById('movieDetails').textContent = 'Missing id';
+      const res = await fetch('/data/movies.json');
+      const movies = await res.json();
+      const m = movies.find(x=> String(x.id) === String(id));
+      if(!m) return document.getElementById('movieDetails').textContent = 'Movie not found';
+      document.title = m.title + ' — Movie Hub';
+      document.getElementById('movieDetails').innerHTML = `
+        <article class="card detail-card">
+          <div class="poster-wrap">
+            <img src="${m.poster}" alt="${m.title} poster" class="poster">
+          </div>
+          <div class="card-body">
+            <h1>${m.title}</h1>
+            <p class="meta">⭐ ${m.rating} • ${m.releaseDate} • ${m.runtime} min</p>
+            <p>${m.overview}</p>
+            <h4>Cast</h4>
+            <p>${m.cast.join(', ')}</p>
+            <p><a href="/">← Back</a></p>
+          </div>
+        </article>
+      `;
+    })();
+  </script>
+</body>
+</html>

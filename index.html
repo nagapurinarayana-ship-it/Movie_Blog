@@ -1,12 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Movie Hub</title>
-</head>
-<body style="font-family:Arial;text-align:center;background:#111;color:white;">
-  <h1>🎬 Welcome to Movie Hub</h1>
-  <p>Latest Movies, Reviews and Ratings</p>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Hub</title>
 
-  <button>Coming Soon</button>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#111;
+color:#fff;
+}
+
+header{
+background:#e50914;
+padding:20px;
+text-align:center;
+font-size:30px;
+font-weight:bold;
+}
+
+nav{
+background:#222;
+padding:12px;
+text-align:center;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+margin:15px;
+font-weight:bold;
+}
+
+.hero{
+padding:40px 20px;
+text-align:center;
+}
+
+.hero h1{
+font-size:40px;
+margin-bottom:10px;
+}
+
+.hero p{
+color:#ddd;
+}
+
+.search{
+margin-top:20px;
+}
+
+.search input{
+width:80%;
+max-width:400px;
+padding:12px;
+border:none;
+border-radius:25px;
+font-size:16px;
+}
+
+.movies{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:30px;
+}
+
+.card{
+background:#1e1e1e;
+border-radius:12px;
+overflow:hidden;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.03);
+}
+
+.card img{
+width:100%;
+height:320px;
+object-fit:cover;
+}
+
+.card h2{
+padding:10px;
+font-size:20px;
+}
+
+.card p{
+padding:0 10px 15px;
+color:#bbb;
+}
+
+footer{
+background:#000;
+text-align:center;
+padding:20px;
+margin-top:30px;
+color:#aaa;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+🎬 Movie Hub
+</header>
+
+<nav>
+<a href="#">Home</a>
+<a href="#">Latest</a>
+<a href="#">Reviews</a>
+<a href="#">Trending</a>
+</nav>
+
+<section class="hero">
+
+<h1>Latest Movies & Reviews</h1>
+
+<p>Find Ratings, Reviews and Trending Movies.</p>
+
+<div class="search">
+<input type="text" placeholder="Search Movies...">
+</div>
+
+</section>
+
+<section class="movies">
+
+<div class="card">
+<img src="https://picsum.photos/400/600?1">
+<h2>Movie Title</h2>
+<p>Rating ⭐ 8.5/10</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/600?2">
+<h2>Movie Title</h2>
+<p>Rating ⭐ 8.8/10</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/600?3">
+<h2>Movie Title</h2>
+<p>Rating ⭐ 9.0/10</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/600?4">
+<h2>Movie Title</h2>
+<p>Rating ⭐ 8.2/10</p>
+</div>
+
+</section>
+
+<footer>
+
+© 2026 Movie Hub
+
+</footer>
+
 </body>
 </html>

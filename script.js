@@ -1,9 +1,12 @@
 /* Main JS for Movie Hub
-   Features: fetch local JSON data, render, search, suggestions, infinite scroll, favorites, lazy loading, PWA registration
+   Features: fetch external API data (TMDb or sampleapis) or fallback to local JSON, render, search, suggestions, infinite scroll, favorites, lazy loading, PWA registration
 */
 (() => {
-  const DATA_URL = '/data/movies.json';
-  const GENRE_URL = '/data/genres.json';
+  // If you want TMDb integration, add your API key to /data/config.json under "tmdbApiKey".
+  const LOCAL_DATA_URL = '/data/movies.json';
+  const LOCAL_GENRE_URL = '/data/genres.json';
+  const CONFIG_URL = '/data/config.json';
+  const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
   const pageSize = 20; // items per page for infinite scroll
 
   // state
@@ -34,7 +37,7 @@
   }
 
   function formatMeta(m){
-    return `${m.releaseDate} • ${m.runtime} min • ⭐ ${m.rating}`;
+    return `${m.releaseDate} • ${m.runtime || 0} min • ⭐ ${m.rating}`;
   }
 
   function createCard(movie){
@@ -42,11 +45,12 @@
     const article = tpl.querySelector('article');
     article.setAttribute('data-id', movie.id);
     const img = tpl.querySelector('.poster');
-    img.src = movie.poster;
+    // support TMDb style image urls
+    img.src = movie.poster || (movie.poster_path? (TMDB_IMAGE_BASE + movie.poster_path) : '/assets/placeholder.png');
     img.alt = `${movie.title} poster`;
     const t = tpl.querySelector('.title'); t.textContent = movie.title;
     const meta = tpl.querySelector('.meta'); meta.textContent = formatMeta(movie);
-    const overview = tpl.querySelector('.overview'); overview.textContent = movie.overview;
+    const overview = tpl.querySelector('.overview'); overview.textContent = movie.overview || '';
     const fav = tpl.querySelector('.fav-toggle');
     fav.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -138,7 +142,7 @@
   searchBox.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
     if(q.length===0){ suggestions.style.display='none'; suggestions.innerHTML=''; resetFilter(); return; }
-    const matches = movies.filter(m => (m.title+ ' ' + m.cast.join(' ') + ' ' + m.genres.join(' ')).toLowerCase().includes(q)).slice(0,8);
+    const matches = movies.filter(m => ((m.title||'')+ ' ' + (m.cast||[]).join(' ') + ' ' + (m.genres||[]).join(' ')).toLowerCase().includes(q)).slice(0,8);
     suggestions.innerHTML = '';
     matches.forEach(m => {
       const li = document.createElement('li'); li.textContent = `${m.title} (${m.releaseDate})`; li.tabIndex=0;
@@ -154,7 +158,7 @@
   });
 
   function applyTextFilter(q){
-    filtered = movies.filter(m => (m.title + ' ' + m.overview + ' ' + m.cast.join(' ')).toLowerCase().includes(q));
+    filtered = movies.filter(m => ((m.title||'') + ' ' + (m.overview||'') + ' ' + (m.cast||[]).join(' ')).toLowerCase().includes(q));
     resetPagination();
   }
 
@@ -174,9 +178,9 @@
     const g = filterGenre.value;
     const s = sortBy.value;
     filtered = movies.slice();
-    if(g !== 'all') filtered = filtered.filter(m => m.genres.includes(g));
-    if(s === 'latest') filtered.sort((a,b)=> b.releaseDate - a.releaseDate);
-    if(s === 'rating') filtered.sort((a,b)=> b.rating - a.rating);
+    if(g !== 'all') filtered = filtered.filter(m => (m.genres||[]).includes(g));
+    if(s === 'latest') filtered.sort((a,b)=> (b.releaseDate||'').localeCompare(a.releaseDate||''));
+    if(s === 'rating') filtered.sort((a,b)=> (b.rating||0) - (a.rating||0));
     // trending - default might be popularity
     resetPagination();
   }
@@ -190,12 +194,29 @@
   // load data
   async function load(){
     try{
-      const [dres, gres] = await Promise.all([fetch(DATA_URL), fetch(GENRE_URL)]);
-      if(!dres.ok) throw new Error('Movies data not available');
-      movies = await dres.json();
-      genres = await gres.json();
+      const cfg = await fetchConfig();
+      if(cfg && cfg.tmdbApiKey){
+        await loadFromTMDb(cfg.tmdbApiKey);
+      } else {
+        // try sampleapis as a quick free source
+        const sample = await fetchFromSampleAPIs();
+        if(sample && sample.length){
+          movies = sample;
+          // try to derive genres from movies
+          const genSet = new Set();
+          movies.forEach(m => (m.genres||[]).forEach(g=> genSet.add(g)));
+          genres = Array.from(genSet).sort();
+        } else {
+          // fallback to local files bundled with the project
+          const [dres, gres] = await Promise.all([fetch(LOCAL_DATA_URL), fetch(LOCAL_GENRE_URL)]);
+          if(!dres.ok) throw new Error('Movies data not available');
+          movies = await dres.json();
+          genres = await gres.json();
+        }
+      }
+
       // normalize types
-      movies.forEach(m => { m.rating = Number(m.rating); m.releaseDate = String(m.releaseDate); });
+      movies.forEach(m => { m.rating = Number(m.rating || m.vote_average || 0); m.releaseDate = String(m.releaseDate || m.release_date || ''); m.runtime = m.runtime || m.runtimeMinutes || 0; m.cast = m.cast || []; m.genres = m.genres || m.genre_names || m.genre || mapGenreIds(m.genre_ids || []); });
       populateGenres();
       featuredMovie();
       filtered = movies.slice();
@@ -206,8 +227,112 @@
     }
   }
 
+  async function fetchConfig(){
+    try{
+      const r = await fetch(CONFIG_URL);
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+
+  function mapGenreIds(ids){
+    if(!Array.isArray(ids) || !genres.length) return [];
+    return ids.map(id => {
+      const g = genres.find(x=> x.id === id || x === id || x.name === id);
+      return g ? (g.name || g) : String(id);
+    }).filter(Boolean);
+  }
+
+  async function loadFromTMDb(key){
+    // fetch genres
+    try{
+      const gres = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`);
+      if(gres.ok){
+        const gd = await gres.json();
+        genres = gd.genres || [];
+      }
+      // fetch a few pages of popular movies (3 pages ~60 items)
+      const pagesToFetch = 3;
+      let results = [];
+      for(let p=1;p<=pagesToFetch;p++){
+        const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${key}&language=en-US&page=${p}`);
+        if(!res.ok) break;
+        const data = await res.json();
+        results = results.concat(data.results || []);
+      }
+      // map fields
+      movies = results.map(m => ({
+        id: m.id,
+        title: m.title || m.original_title,
+        poster: m.poster_path? (TMDB_IMAGE_BASE + m.poster_path) : m.backdrop_path? (TMDB_IMAGE_BASE + m.backdrop_path) : '/assets/placeholder.png',
+        poster_path: m.poster_path,
+        overview: m.overview,
+        releaseDate: m.release_date,
+        rating: m.vote_average,
+        genre_ids: m.genre_ids || [],
+        popularity: m.popularity || 0,
+        cast: []
+      }));
+      // optional: fetch credits for first 20 movies to populate cast (best-effort)
+      const creditFetchCount = Math.min(20, movies.length);
+      await Promise.all(movies.slice(0, creditFetchCount).map(async (mv, idx) => {
+        try{
+          const r = await fetch(`https://api.themoviedb.org/3/movie/${mv.id}/credits?api_key=${key}`);
+          if(!r.ok) return;
+          const cd = await r.json();
+          mv.cast = (cd.cast || []).slice(0,6).map(c=> c.name);
+        }catch(e){/*ignore*/}
+      }));
+
+    }catch(e){
+      console.error('TMDb load failed', e);
+      throw e;
+    }
+  }
+
+  async function fetchFromSampleAPIs(){
+    try{
+      // sampleapis doesn't provide a single combined list; combine a few categories
+      const endpoints = [
+        'https://api.sampleapis.com/movies/action',
+        'https://api.sampleapis.com/movies/drama',
+        'https://api.sampleapis.com/movies/comedy'
+      ];
+      const all = [];
+      await Promise.all(endpoints.map(async ep => {
+        try{
+          const r = await fetch(ep);
+          if(!r.ok) return;
+          const data = await r.json();
+          // normalize entries where possible
+          data.forEach(item => {
+            all.push({
+              id: item.id || item.imdbID || (item.title + '::' + (item.year||'')),
+              title: item.title || item.name,
+              poster: item.posterURL || item.poster || (item.imageUrl || ''),
+              overview: item.plot || item.description || item.storyline || '',
+              releaseDate: item.year || item.releaseDate || '',
+              rating: Number(item.rating || item.imdbRating || 0),
+              runtime: item.runtime || 0,
+              cast: item.actors || item.cast || [],
+              genres: item.genre || item.genres || []
+            });
+          });
+        }catch(e){/*ignore*/}
+      }));
+      return all;
+    }catch(e){
+      return [];
+    }
+  }
+
   function populateGenres(){
-    genres.forEach(g => {
+    // clear existing options except 'all'
+    filterGenre.innerHTML = '<option value="all">All Genres</option>';
+    // genres may be array of strings or objects {id,name}
+    const list = genres.map(g => typeof g === 'string'? g : (g.name || g));
+    const uniq = Array.from(new Set(list)).sort();
+    uniq.forEach(g => {
       const opt = document.createElement('option'); opt.value = g; opt.textContent = g; filterGenre.appendChild(opt);
     });
   }
@@ -215,6 +340,7 @@
   function featuredMovie(){
     const el = document.getElementById('featured');
     const pick = movies[Math.floor(Math.random()*movies.length)];
+    if(!pick) return;
     el.innerHTML = '';
     const hero = document.createElement('div');
     hero.className = 'hero-card';
@@ -224,7 +350,7 @@
       </picture>
       <div class="hero-card-body">
         <h3>${pick.title} <span class="muted">(${pick.releaseDate})</span></h3>
-        <p class="muted">⭐ ${pick.rating} • ${pick.genres.join(', ')}</p>
+        <p class="muted">⭐ ${pick.rating} • ${(pick.genres||[]).join(', ')}</p>
         <p>${pick.overview}</p>
         <div style="margin-top:12px">
           <a class="icon-btn" href="/pages/movie.html?id=${pick.id}">View Details</a>

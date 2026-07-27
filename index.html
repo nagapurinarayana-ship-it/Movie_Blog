@@ -1,181 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<link rel="stylesheet" href="style.css">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Movie Hub</title>
-
-<style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-<script src="script.js"></script>
-body{
-background:#0d0d0d;
-color:white;
-}
-
-header{
-background:#111;
-padding:18px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-position:sticky;
-top:0;
-}
-
-.logo{
-font-size:30px;
-font-weight:bold;
-color:#ff3d3d;
-}
-
-nav a{
-color:white;
-text-decoration:none;
-margin-left:20px;
-}
-
-.hero{
-height:420px;
-background:linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.8)),url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop");
-background-size:cover;
-background-position:center;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-padding:20px;
-}
-
-.hero h1{
-font-size:48px;
-margin-bottom:10px;
-}
-
-.hero p{
-font-size:20px;
-color:#ddd;
-margin-bottom:20px;
-}
-
-.hero input{
-width:90%;
-max-width:500px;
-padding:14px;
-border-radius:30px;
-border:none;
-font-size:16px;
-}
-
-.section-title{
-font-size:28px;
-padding:25px;
-}
-
-.movies{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;
-padding:20px;
-}
-
-.card{
-background:#1b1b1b;
-border-radius:12px;
-overflow:hidden;
-transition:.3s;
-}
-
-.card:hover{
-transform:scale(1.05);
-}
-
-.card img{
-width:100%;
-height:300px;
-object-fit:cover;
-}
-
-.card h3{
-padding:10px;
-}
-
-.card p{
-padding:0 10px 15px;
-color:#bbb;
-}
-
-footer{
-margin-top:40px;
-background:#111;
-padding:25px;
-text-align:center;
-color:#999;
-}
-</style>
-
-</head>
-
-<body>
-
 <header>
+    <div class="logo">🎬 Movie Hub</div>
 
-<div class="logo">🎬 Movie Hub</div>
-
-<nav>
-<a href="#">Home</a>
-<a href="#">Trending</a>
-<a href="#">Latest</a>
-<a href="#">Reviews</a>
-</nav>
-
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Trending</a>
+        <a href="#">Latest</a>
+        <a href="#">Top Rated</a>
+        <a href="#">Upcoming</a>
+    </nav>
 </header>
 
 <section class="hero">
 
-<h1>Discover Amazing Movies</h1>
+    <h1>Discover Your Next Favourite Movie</h1>
 
-<p>Search Movies • Ratings • Reviews • Trailers</p>
+    <p>
+        Search thousands of movies, ratings, reviews and trailers.
+    </p>
 
-<input type="text" placeholder="Search your favourite movie...">
+    <input
+        id="searchBox"
+        type="text"
+        placeholder="Search Movies..."
+    >
 
 </section>
 
-<h2 class="section-title">🔥 Trending Movies</h2>
+<h2 class="title">
+🔥 Trending Movies
+</h2>
 
-<section class="movies">
-
-<div class="card">
-<img src="https://picsum.photos/300/450?random=1">
-<h3>Coming Soon</h3>
-<p>⭐ Rating Coming Soon</p>
-</div>
-
-<div class="card">
-<img src="https://picsum.photos/300/450?random=2">
-<h3>Coming Soon</h3>
-<p>⭐ Rating Coming Soon</p>
-</div>
-
-<div class="card">
-<img src="https://picsum.photos/300/450?random=3">
-<h3>Coming Soon</h3>
-<p>⭐ Rating Coming Soon</p>
-</div>
-
-<div class="card">
-<img src="https://picsum.photos/300/450?random=4">
-<h3>Coming Soon</h3>
-<p>⭐ Rating Coming Soon</p>
-</div>
+<section id="movieGrid" class="movies">
 
 </section>
 
@@ -184,6 +39,3 @@ color:#999;
 © 2026 Movie Hub
 
 </footer>
-
-</body>
-</html>

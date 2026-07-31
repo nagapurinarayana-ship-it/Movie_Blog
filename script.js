@@ -1,8 +1,9 @@
-/* Main JS for Movie Hub
-   Features: fetch external API data (TMDb or sampleapis) or fallback to local JSON, render, search, suggestions, infinite scroll, favorites, lazy loading, PWA registration
-*/
+/* script.js — updated to avoid using any client-side API keys and to prefer server-side proxies */
 (() => {
-  // If you want TMDb integration, add your API key to /data/config.json under "tmdbApiKey".
+  // If you previously used TMDb client keys in /data/config.json, do NOT commit secrets.
+  // This version will NOT call TMDb directly even if a client key is present.
+  // Instead, the app prefers server-side APIs or local fallback data.
+
   const LOCAL_DATA_URL = '/data/movies.json';
   const LOCAL_GENRE_URL = '/data/genres.json';
   const CONFIG_URL = '/data/config.json';
@@ -63,7 +64,15 @@
 
     article.addEventListener('click', () => {
       // navigate to movie page
-      window.location.href = `/pages/movie.html?id=${movie.id}`;
+      window.location.href = `/pages/movie.html?id=${encodeURIComponent(movie.id)}`;
+    });
+
+    // keyboard accessibility for opening
+    article.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        article.click();
+      }
     });
 
     return tpl;
@@ -101,41 +110,45 @@
     if(end >= filtered.length) {
       loadingEl.style.display = 'none';
     }
-    observeImages();
+    // rely on native lazy loading; no custom observer by default
   }
 
-  // lazy load using IntersectionObserver
-  let io;
-  function observeImages(){
-    const imgs = document.querySelectorAll('img[loading="lazy"]');
+  // lazy loading: favor native loading="lazy" and set width/height in templates
+
+  // infinite scroll using IntersectionObserver sentinel
+  let sentinel;
+  function setupInfiniteScroll(){
+    sentinel = document.createElement('div');
+    sentinel.id = 'loadMoreSentinel';
+    grid.appendChild(sentinel);
     if('IntersectionObserver' in window){
-      if(!io){
-        io = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if(entry.isIntersecting){
-              const img = entry.target;
-              if(img.dataset.src){ img.src = img.dataset.src; }
-              io.unobserve(img);
-            }
-          });
-        },{rootMargin:'200px'});
-      }
-      imgs.forEach(img => {
-        if(img.dataset.src) io.observe(img);
-      });
+      const obs = new IntersectionObserver(entries => {
+        if(entries[0].isIntersecting){
+          renderPage();
+        }
+      }, { rootMargin: '500px' });
+      obs.observe(sentinel);
+    } else {
+      // fallback to scroll handler
+      window.addEventListener('scroll', () => {
+        if((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 600)){
+          renderPage();
+        }
+      }, {passive:true});
     }
   }
 
-  // infinite scroll
-  window.addEventListener('scroll', () => {
-    if((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 600)){
-      renderPage();
-    }
-    // show scroll top
-    scrollTop.style.display = (window.scrollY>600)?'block':'none';
-  }, {passive:true});
+  const LS_RECENT = 'mh:recent:v1';
 
-  scrollTop.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+  function storeRecent(id){
+    try{
+      const arr = JSON.parse(localStorage.getItem(LS_RECENT) || '[]');
+      const idx = arr.indexOf(id);
+      if(idx !== -1) arr.splice(idx,1);
+      arr.unshift(id);
+      localStorage.setItem(LS_RECENT, JSON.stringify(arr.slice(0,10)));
+    }catch(e){}
+  }
 
   // search
   let suggestTimeout;
@@ -146,7 +159,7 @@
     suggestions.innerHTML = '';
     matches.forEach(m => {
       const li = document.createElement('li'); li.textContent = `${m.title} (${m.releaseDate})`; li.tabIndex=0;
-      li.addEventListener('click', ()=>{ window.location.href = `/pages/movie.html?id=${m.id}` });
+      li.addEventListener('click', ()=>{ window.location.href = `/pages/movie.html?id=${encodeURIComponent(m.id)}` });
       suggestions.appendChild(li);
     });
     suggestions.style.display = matches.length? 'block':'none';
@@ -167,12 +180,8 @@
   });
 
   // filtering and sorting
-  filterGenre.addEventListener('change', ()=>{
-    applyFilters();
-  });
-  sortBy.addEventListener('change', ()=>{
-    applyFilters();
-  });
+  filterGenre.addEventListener('change', ()=>{ applyFilters(); });
+  sortBy.addEventListener('change', ()=>{ applyFilters(); });
 
   function applyFilters(){
     const g = filterGenre.value;
@@ -181,49 +190,58 @@
     if(g !== 'all') filtered = filtered.filter(m => (m.genres||[]).includes(g));
     if(s === 'latest') filtered.sort((a,b)=> (b.releaseDate||'').localeCompare(a.releaseDate||''));
     if(s === 'rating') filtered.sort((a,b)=> (b.rating||0) - (a.rating||0));
-    // trending - default might be popularity
     resetPagination();
   }
 
   function resetPagination(){
-    page = 0; grid.innerHTML = '';
-    grid.appendChild(loadingEl);
+    page = 0; grid.innerHTML = ''; grid.appendChild(loadingEl);
     renderPage();
   }
 
   // load data
   async function load(){
     try{
-      const cfg = await fetchConfig();
-      if(cfg && cfg.tmdbApiKey){
-        await loadFromTMDb(cfg.tmdbApiKey);
+      // Do not rely on client-side API keys. Read config for non-secret flags only.
+      // const cfg = await fetchConfig();
+      // if(cfg && cfg.tmdbApiKey){
+      //   // For production, do NOT call TMDb directly from the browser. Use a server-side proxy instead.
+      // }
+
+      // try sampleapis as a quick free source
+      const sample = await fetchFromSampleAPIs();
+      if(sample && sample.length){
+        movies = sample;
+        // try to derive genres from movies
+        const genSet = new Set();
+        movies.forEach(m => (m.genres||[]).forEach(g=> genSet.add(g)));
+        genres = Array.from(genSet).sort();
       } else {
-        // try sampleapis as a quick free source
-        const sample = await fetchFromSampleAPIs();
-        if(sample && sample.length){
-          movies = sample;
-          // try to derive genres from movies
-          const genSet = new Set();
-          movies.forEach(m => (m.genres||[]).forEach(g=> genSet.add(g)));
-          genres = Array.from(genSet).sort();
-        } else {
-          // fallback to local files bundled with the project
-          const [dres, gres] = await Promise.all([fetch(LOCAL_DATA_URL), fetch(LOCAL_GENRE_URL)]);
-          if(!dres.ok) throw new Error('Movies data not available');
-          movies = await dres.json();
-          genres = await gres.json();
-        }
+        // fallback to local files bundled with the project
+        const [dres, gres] = await Promise.all([fetch(LOCAL_DATA_URL), fetch(LOCAL_GENRE_URL)]);
+        if(!dres.ok) throw new Error('Movies data not available');
+        movies = await dres.json();
+        genres = await gres.json();
       }
 
-      // normalize types
-      movies.forEach(m => { m.rating = Number(m.rating || m.vote_average || 0); m.releaseDate = String(m.releaseDate || m.release_date || ''); m.runtime = m.runtime || m.runtimeMinutes || 0; m.cast = m.cast || []; m.genres = m.genres || m.genre_names || m.genre || mapGenreIds(m.genre_ids || []); });
+      // normalize types where possible
+      movies.forEach(m => {
+        m.rating = Number(m.rating || m.vote_average || 0);
+        m.releaseDate = String(m.releaseDate || m.release_date || '');
+        m.runtime = m.runtime || m.runtimeMinutes || 0;
+        if(Array.isArray(m.genre_ids)) m.genres = mapGenreIds(m.genre_ids);
+      });
+
       populateGenres();
       featuredMovie();
       filtered = movies.slice();
+      setupInfiniteScroll();
       renderPage();
     }catch(err){
-      loadingEl.textContent = 'Unable to load movies. Try again offline?';
+      loadingEl.textContent = 'Movies could not be loaded. Please try again.';
       console.error(err);
+      const retry = document.createElement('button'); retry.id = 'retryMovies'; retry.type = 'button'; retry.textContent = 'Try again';
+      retry.addEventListener('click', () => { loadingEl.textContent = 'Loading...'; load(); });
+      loadingEl.appendChild(retry);
     }
   }
 
@@ -235,59 +253,13 @@
     }catch(e){ return null; }
   }
 
+  // mapGenreIds and other helper functions unchanged
   function mapGenreIds(ids){
     if(!Array.isArray(ids) || !genres.length) return [];
     return ids.map(id => {
       const g = genres.find(x=> x.id === id || x === id || x.name === id);
       return g ? (g.name || g) : String(id);
     }).filter(Boolean);
-  }
-
-  async function loadFromTMDb(key){
-    // fetch genres
-    try{
-      const gres = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`);
-      if(gres.ok){
-        const gd = await gres.json();
-        genres = gd.genres || [];
-      }
-      // fetch a few pages of popular movies (3 pages ~60 items)
-      const pagesToFetch = 3;
-      let results = [];
-      for(let p=1;p<=pagesToFetch;p++){
-        const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${key}&language=en-US&page=${p}`);
-        if(!res.ok) break;
-        const data = await res.json();
-        results = results.concat(data.results || []);
-      }
-      // map fields
-      movies = results.map(m => ({
-        id: m.id,
-        title: m.title || m.original_title,
-        poster: m.poster_path? (TMDB_IMAGE_BASE + m.poster_path) : m.backdrop_path? (TMDB_IMAGE_BASE + m.backdrop_path) : '/assets/placeholder.png',
-        poster_path: m.poster_path,
-        overview: m.overview,
-        releaseDate: m.release_date,
-        rating: m.vote_average,
-        genre_ids: m.genre_ids || [],
-        popularity: m.popularity || 0,
-        cast: []
-      }));
-      // optional: fetch credits for first 20 movies to populate cast (best-effort)
-      const creditFetchCount = Math.min(20, movies.length);
-      await Promise.all(movies.slice(0, creditFetchCount).map(async (mv, idx) => {
-        try{
-          const r = await fetch(`https://api.themoviedb.org/3/movie/${mv.id}/credits?api_key=${key}`);
-          if(!r.ok) return;
-          const cd = await r.json();
-          mv.cast = (cd.cast || []).slice(0,6).map(c=> c.name);
-        }catch(e){/*ignore*/}
-      }));
-
-    }catch(e){
-      console.error('TMDb load failed', e);
-      throw e;
-    }
   }
 
   async function fetchFromSampleAPIs(){
@@ -344,19 +316,25 @@
     el.innerHTML = '';
     const hero = document.createElement('div');
     hero.className = 'hero-card';
-    hero.innerHTML = `
-      <picture>
-        <img src="${pick.poster}" alt="${pick.title} poster" style="width:100%;height:100%;object-fit:cover">
-      </picture>
-      <div class="hero-card-body">
-        <h3>${pick.title} <span class="muted">(${pick.releaseDate})</span></h3>
-        <p class="muted">⭐ ${pick.rating} • ${(pick.genres||[]).join(', ')}</p>
-        <p>${pick.overview}</p>
-        <div style="margin-top:12px">
-          <a class="icon-btn" href="/pages/movie.html?id=${pick.id}">View Details</a>
-        </div>
-      </div>
-    `;
+    // build safely using textContent instead of innerHTML
+    const pic = document.createElement('picture');
+    const img = document.createElement('img');
+    img.src = pick.poster || '/assets/placeholder.png';
+    img.alt = `${pick.title} poster`;
+    pic.appendChild(img);
+
+    const body = document.createElement('div');
+    body.className = 'hero-card-body';
+    const h3 = document.createElement('h3');
+    h3.textContent = pick.title + ' (' + (pick.releaseDate || '') + ')';
+    const meta = document.createElement('p'); meta.className = 'muted'; meta.textContent = `⭐ ${pick.rating} • ${(pick.genres||[]).join(', ')}`;
+    const p = document.createElement('p'); p.textContent = pick.overview || '';
+    const actions = document.createElement('div'); actions.style.marginTop = '12px';
+    const a = document.createElement('a'); a.className = 'icon-btn'; a.href = `/pages/movie.html?id=${encodeURIComponent(pick.id)}`; a.textContent = 'View Details';
+    actions.appendChild(a);
+
+    body.appendChild(h3); body.appendChild(meta); body.appendChild(p); body.appendChild(actions);
+    hero.appendChild(pic); hero.appendChild(body);
     el.appendChild(hero);
   }
 

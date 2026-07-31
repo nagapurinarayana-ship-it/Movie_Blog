@@ -23,6 +23,7 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0f1724">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/assets/css/ui.css">
 
   <script type="application/ld+json">
   {
@@ -55,7 +56,7 @@
 
       <div class="nav-actions">
         <button id="themeToggle" class="icon-btn" aria-pressed="false" title="Toggle dark mode">🌙</button>
-        <a href="#favorites" id="favBtn" class="icon-btn" title="Favorites">❤</a>
+        <a href="#favorites" id="favBtn" class="icon-btn" title="Favorites">❤ <span id="fav-count"></span></a>
       </div>
     </div>
   </header>
@@ -113,6 +114,8 @@
       </template>
 
       <div id="loading" class="loading">Loading...</div>
+      <button id="loadMore" style="display:none">Load more</button>
+      <div id="spinner" style="display:none" aria-hidden="true">⏳</div>
     </section>
 
     <button id="scrollTop" class="scroll-top" aria-label="Scroll to top">↑</button>
@@ -145,5 +148,6 @@
   </footer>
 
   <script src="/script.js" defer></script>
+  <script src="/assets/js/search.js" defer></script>
 </body>
 </html>

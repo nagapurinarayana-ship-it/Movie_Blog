@@ -1,8 +1,30 @@
 {
-  "actors": [],
-  "directors": [],
+  "actors": [
+    {"id":"emraan-hashmi","name":"Emraan Hashmi","type":"actor"},
+    {"id":"disha-patani","name":"Disha Patani","type":"actor"},
+    {"id":"shabana-azmi","name":"Shabana Azmi","type":"actor"},
+    {"id":"sunny-deol","name":"Sunny Deol","type":"actor"},
+    {"id":"preity-zinta","name":"Preity Zinta","type":"actor"},
+    {"id":"karan-deol","name":"Karan Deol","type":"actor"},
+    {"id":"tom-holland","name":"Tom Holland","type":"actor"},
+    {"id":"yash","name":"Yash","type":"actor"},
+    {"id":"pankaj-tripathi","name":"Pankaj Tripathi","type":"actor"},
+    {"id":"ali-fazal","name":"Ali Fazal","type":"actor"},
+    {"id":"ravi-kishan","name":"Ravi Kishan","type":"actor"}
+  ],
+  "directors": [
+    {"id":"nitin-kakkar","name":"Nitin Kakkar","type":"director"},
+    {"id":"destin-daniel-cretton","name":"Destin Daniel Cretton","type":"director"},
+    {"id":"christopher-nolan","name":"Christopher Nolan","type":"director"},
+    {"id":"geetu-mohandas","name":"Geetu Mohandas","type":"director"}
+  ],
   "notes": {
     "schemaVersion": 1,
-    "usage": "Populate from licensed/approved data sources. Do not scrape third-party sites without permission."
+    "usage": "Seeded from the cited starter catalog. Add biographies, filmographies and additional entities only from verified/licensed sources.",
+    "sources": [
+      "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news/emraan-hashmi-returns-as-shivam-pandit-in-awarapan-2-after-19-years-heres-reasons-why-sequel-deserves-your-attention/articleshow/133182257.cms",
+      "https://timesofindia.indiatimes.com/entertainment/english/hollywood/box-office/spider-man-brand-new-day-box-office-collections-day-13-tom-holland-starrer-nears-rs-520-crore-gross-in-india-despite-awarapan-2-and-batwara-1947-opening-advance-ticket-sales/articleshow/133167425.cms",
+      "https://www.bollywoodhungama.com/movie-release-dates/"
+    ]
   }
 }

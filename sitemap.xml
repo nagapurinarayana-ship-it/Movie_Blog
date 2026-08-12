@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/</loc>
-  </url>
-  <url>
-    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/about.html</loc>
-  </url>
-  <url>
-    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/contact.html</loc>
-  </url>
-  <url>
-    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/search.html</loc>
-  </url>
-  <url>
-    <loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/category.html</loc>
-  </url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/search.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/category.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/movie.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/actor.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/director.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/about.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/contact.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/privacy.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/terms.html</loc></url>
+  <url><loc>https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/disclaimer.html</loc></url>
 </urlset>

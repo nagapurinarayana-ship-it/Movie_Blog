@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actor — MovieBlog</title>
+  <meta name="description" content="Actor profile and filmography on MovieBlog.">
+  <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/actor.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
+<main class="container section"><div id="entityRoot" aria-live="polite">Loading actor…</div></main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script src="../assets/js/entities.js" defer></script>
+<script>
+(() => {
+  const root = document.getElementById('entityRoot');
+  function text(tag, value, cls) { const n=document.createElement(tag); n.textContent=value||''; if(cls)n.className=cls; return n; }
+  async function render(){
+    const id = new URLSearchParams(location.search).get('id');
+    const entities = await window.MovieBlogEntities.loadEntities();
+    const actor = window.MovieBlogEntities.findEntity(entities.actors, id);
+    if(!actor){ root.textContent='Actor not found. Entity data will appear as the catalog grows.'; return; }
+    document.title = `${actor.name} — MovieBlog`;
+    const article=document.createElement('article'); article.className='card detail-card entity-card';
+    const body=document.createElement('div'); body.className='card-body';
+    body.append(text('p','ACTOR','eyebrow'), text('h1',actor.name));
+    body.append(text('p',actor.bio || 'Actor profile information.', 'overview'));
+    if(Array.isArray(actor.movies) && actor.movies.length){
+      body.append(text('h2','Filmography'));
+      const list=document.createElement('ul'); list.className='entity-list';
+      actor.movies.forEach(movie => { const li=document.createElement('li'); const a=document.createElement('a'); a.href=`movie.html?id=${encodeURIComponent(movie.id)}`; a.textContent=movie.title || movie.id; li.appendChild(a); list.appendChild(li); });
+      body.appendChild(list);
+    }
+    article.appendChild(body); root.replaceChildren(article);
+    const schema=document.createElement('script'); schema.type='application/ld+json'; schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','name':actor.name,'description':actor.bio||undefined}); document.head.appendChild(schema);
+  }
+  document.addEventListener('DOMContentLoaded', render);
+})();
+</script>
+</body>
+</html>

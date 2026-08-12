@@ -2,15 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Search — Movie Hub</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/style.css">
+  <title>Search Movies — MovieBlog</title>
+  <meta name="description" content="Search MovieBlog for movies and discover movie details.">
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-  <header class="nav"><div class="container nav-inner"><a href="/" class="logo">🎬 Movie Hub</a></div></header>
-  <main class="container">
-    <h1>Search</h1>
-    <p>Use the search box on the homepage to find movies, or try query string ?q=Your+Query</p>
+  <header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../">Home</a></div></header>
+  <main class="container section">
+    <p class="eyebrow">DISCOVER</p><h1>Search MovieBlog</h1>
+    <div class="search-wrap"><label class="sr-only" for="query">Search</label><input id="query" type="search" placeholder="Search movies, actors, genres…" autocomplete="off"></div>
+    <p id="status" class="meta">Loading…</p>
+    <section id="results" class="movies" aria-live="polite"></section>
   </main>
+  <script>
+    (async () => {
+      const input = document.getElementById('query');
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+      const params = new URLSearchParams(location.search);
+      input.value = params.get('q') || '';
+      let movies = [];
+      const normalize = m => ({...m,id:m.id||m.imdbID,title:m.title||m.name||'Untitled',poster:m.poster||m.posterURL||m.poster_path||m.imageUrl||'',releaseDate:String(m.releaseDate||m.release_date||m.year||''),rating:Number(m.rating||m.vote_average||m.imdbRating||0),overview:m.overview||m.plot||m.description||'',cast:Array.isArray(m.cast)?m.cast:(Array.isArray(m.actors)?m.actors:[]),genres:Array.isArray(m.genres)?m.genres:(Array.isArray(m.genre)?m.genre:[])});
+      async function load() {
+        try { const r=await fetch('../data/movies.json',{cache:'no-store'}); if(r.ok){const d=await r.json(); if(Array.isArray(d)&&d.length){movies=d.map(normalize);return;}} } catch(_){}
+        const urls=['https://api.sampleapis.com/movies/action','https://api.sampleapis.com/movies/drama','https://api.sampleapis.com/movies/comedy'];
+        const rs=await Promise.allSettled(urls.map(url=>fetch(url)));
+        for(const x of rs){if(x.status!=='fulfilled'||!x.value.ok)continue;try{const d=await x.value.json();if(Array.isArray(d))movies.push(...d.map(normalize));}catch(_) {}}
+      }
+      function render() {
+        const q=input.value.trim().toLowerCase();
+        const matches=q?movies.filter(m=>[m.title,m.overview,...m.cast,...m.genres].join(' ').toLowerCase().includes(q)):movies;
+        results.replaceChildren();
+        matches.slice(0,60).forEach(m=>{
+          const card=document.createElement('article');card.className='card';
+          const img=document.createElement('img');img.className='poster';img.loading='lazy';img.alt=`${m.title} poster`;img.src=m.poster||'../assets/placeholder.png';
+          const body=document.createElement('div');body.className='card-body';
+          const h=document.createElement('h2');h.className='title';h.textContent=m.title;
+          const p=document.createElement('p');p.className='meta';p.textContent=`⭐ ${m.rating||0} • ${m.releaseDate||'Release TBA'}`;
+          const a=document.createElement('a');a.className='secondary-btn';a.href=`./movie.html?id=${encodeURIComponent(m.id)}`;a.textContent='View details';
+          body.append(h,p,a);card.append(img,body);results.appendChild(card);
+        });
+        status.textContent=`${matches.length} result${matches.length===1?'':'s'}`;
+      }
+      input.addEventListener('input',()=>{const q=input.value.trim();const url=new URL(location.href);q?url.searchParams.set('q',q):url.searchParams.delete('q');history.replaceState({},'',url);render();});
+      await load();render();
+    })();
+  </script>
 </body>
 </html>

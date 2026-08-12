@@ -1,16 +1,30 @@
-# Movie Hub
+# MovieBlog
 
-Movie Hub is a production-ready client-side demo for browsing movies. It is built with modern HTML, CSS and vanilla JavaScript and is optimized for performance, accessibility and SEO. The app is installable (PWA) and works offline via a service worker.
+MovieBlog is a fast, mobile-first entertainment platform built with modern HTML, CSS and vanilla JavaScript.
 
-Open index.html on GitHub Pages or any static host.
+## Current capabilities
 
-## Features
-- Dark theme with glassmorphism UI
-- Responsive layout (mobile-first)
-- Infinite scroll, lazy loading
-- Search with suggestions
-- Favorites stored in localStorage
-- Movie details page
-- PWA manifest and service worker
-- SEO meta tags, OpenGraph, JSON-LD
+- Movie discovery, search and favorites
+- Movie, actor and director entity pages
+- Box-office and OTT data models
+- Server-side TMDB provider integration with client-side key protection
+- India Trending Radar using Google Trends signals
+- News/article pages with entity linking and `NewsArticle` structured data
+- Controlled monetization hooks with ads disabled by default
+- PWA/offline support
+- Sitemap, robots.txt, canonical metadata and SEO validation
+- Automated daily data/schema and SEO quality checks through GitHub Actions
 
+## Operating principle
+
+MovieBlog separates discovery from publication. Trend signals and provider data are inputs; editorial content and sensitive figures are published only after source verification.
+
+## Zero-budget direction
+
+The initial architecture avoids paid SEO subscriptions and premium infrastructure. External providers must be used within their current terms and licensing requirements.
+
+## Deployment
+
+The project is designed for GitHub Pages/project-site deployment under `/Movie_Blog/` and can also be hosted on another static platform that supports the configured server-side functions.
+
+See `docs/MOVIEBLOG_OPERATIONS.md` for publishing and maintenance rules.

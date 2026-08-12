@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "providers": {
+    "local": {
+      "status": "primary",
+      "purpose": "Curated catalog data committed to the repository."
+    },
+    "tmdb": {
+      "status": "optional",
+      "purpose": "Movie metadata, popularity, credits and images through the server-side proxy.",
+      "license": "Free developer API for non-commercial use with required attribution.",
+      "attribution": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+      "commercialNote": "Do not enable TMDB for a revenue-generating deployment without the appropriate commercial license."
+    },
+    "wikidata": {
+      "status": "planned",
+      "purpose": "Supplemental entity identifiers and structured facts.",
+      "license": "CC0 for structured data"
+    }
+  },
+  "rules": [
+    "Never commit API keys.",
+    "Never scrape competitor websites for content or data without permission.",
+    "Label estimates and reported figures where the source is not authoritative.",
+    "Keep provider-specific code behind a server-side adapter when a secret is required."
+  ]
+}

@@ -1,13 +1,86 @@
 {
-  "opportunities": [],
-  "schemaVersion": 1,
+  "opportunities": [
+    {
+      "id": "awarapan-2-release-box-office-2026",
+      "topic": "Awarapan 2",
+      "cluster": "movie-release-box-office",
+      "priority": 100,
+      "status": "research",
+      "intent": ["release date", "cast", "review", "box office", "day 1 collection", "budget", "hit or flop"],
+      "entityId": "awarapan-2-2026",
+      "whyNow": "The film releases on August 14, 2026 and current reporting shows it leading the advance-booking race for the Independence Day weekend.",
+      "sourceRefs": ["toi-awarapan-advance-2026-08-13"],
+      "publishGate": "Verify current figures and write original coverage before publishing."
+    },
+    {
+      "id": "batwara-1947-release-box-office-2026",
+      "topic": "Batwara 1947",
+      "cluster": "movie-release-box-office",
+      "priority": 98,
+      "status": "research",
+      "intent": ["release date", "cast", "review", "box office", "day 1 collection", "budget", "hit or flop"],
+      "entityId": "batwara-1947-2026",
+      "whyNow": "The film is part of the August 14, 2026 Independence Day release clash with Awarapan 2.",
+      "sourceRefs": ["toi-awarapan-batwara-clash-2026-08-13"],
+      "publishGate": "Verify current cast, release and collection data before publication."
+    },
+    {
+      "id": "awarapan-2-vs-batwara-1947",
+      "topic": "Awarapan 2 vs Batwara 1947",
+      "cluster": "movie-release-box-office",
+      "priority": 97,
+      "status": "research",
+      "intent": ["advance booking", "opening day", "box office clash", "show count", "which movie to watch"],
+      "entityIds": ["awarapan-2-2026", "batwara-1947-2026"],
+      "whyNow": "The two films are releasing together on the Independence Day weekend and current reporting shows a measurable advance-booking gap.",
+      "sourceRefs": ["toi-awarapan-batwara-clash-2026-08-13"],
+      "publishGate": "Use dated, attributed figures and avoid predictions presented as facts."
+    },
+    {
+      "id": "spider-man-brand-new-day-india-box-office",
+      "topic": "Spider-Man: Brand New Day",
+      "cluster": "box-office-tracking",
+      "priority": 95,
+      "status": "research",
+      "intent": ["India box office", "Day 13 collection", "worldwide collection", "lifetime collection", "highest grossing Hollywood film India"],
+      "entityId": "spider-man-brand-new-day-2026",
+      "whyNow": "Current reporting says the film is nearing ₹520 crore gross in India on Day 13 and is entering its third weekend.",
+      "sourceRefs": ["toi-spiderman-day13-2026-08-13"],
+      "publishGate": "Keep India net/gross and worldwide numbers clearly separated and sourced."
+    },
+    {
+      "id": "spider-man-brand-new-day-vs-independence-day-releases",
+      "topic": "Spider-Man: Brand New Day vs Awarapan 2 vs Batwara 1947",
+      "cluster": "box-office-clash",
+      "priority": 92,
+      "status": "research",
+      "intent": ["screens", "box office competition", "third weekend", "Independence Day releases"],
+      "entityIds": ["spider-man-brand-new-day-2026", "awarapan-2-2026", "batwara-1947-2026"],
+      "whyNow": "Current coverage explicitly frames the upcoming Hindi releases as competition for Spider-Man's third weekend.",
+      "sourceRefs": ["toi-spiderman-day13-2026-08-13"],
+      "publishGate": "Use reported show/screen information only; do not invent forecasts."
+    },
+    {
+      "id": "india-microdrama-entertainment-trend",
+      "topic": "Microdrama in India",
+      "cluster": "entertainment-trends",
+      "priority": 88,
+      "status": "research",
+      "intent": ["what is microdrama", "best microdrama apps", "microdrama series India", "short episode entertainment"],
+      "whyNow": "A current industry report says microdrama is becoming a significant entertainment habit in India, with strong short-form episodic consumption.",
+      "sourceRefs": ["et-microdrama-india-2026-08-13"],
+      "publishGate": "Use the report's methodology and figures accurately; distinguish industry research from MovieBlog opinion."
+    }
+  ],
+  "schemaVersion": 2,
   "workflow": [
     "discover from Trending Radar",
     "research and verify facts",
     "write original coverage",
     "link relevant entities",
     "human review",
-    "publish"
+    "publish",
+    "refresh or retire stale coverage"
   ],
-  "notes": "Trend signals are not proof of facts. Do not auto-publish or fabricate claims from a trend alone."
+  "notes": "Trend signals are discovery inputs only. Do not auto-publish, fabricate claims, or present forecasts as reported facts."
 }

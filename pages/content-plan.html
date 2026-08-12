@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MovieBlog Content Plan</title>
+  <meta name="description" content="MovieBlog editorial inventory and content priorities.">
+  <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/content-plan.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="dark">
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/trending.html">Trending Radar</a></div></header>
+<main class="container section">
+  <p class="eyebrow">EDITORIAL INVENTORY</p>
+  <h1>What MovieBlog should build next</h1>
+  <p class="muted">This page is an internal planning surface: it shows the content clusters and required fields without presenting unverified facts as published content.</p>
+  <section id="clusters" class="news-list" aria-live="polite"></section>
+</main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script>
+(async()=>{
+  const root=document.getElementById('clusters');
+  try{
+    const r=await fetch('../data/content-plan.json',{cache:'no-store'}); if(!r.ok) throw new Error();
+    const data=await r.json();
+    root.replaceChildren(...(data.priorityClusters||[]).map(cluster=>{
+      const card=document.createElement('article'); card.className='card news-card';
+      const body=document.createElement('div'); body.className='card-body';
+      const h=document.createElement('h2'); h.textContent=cluster.label;
+      const p=document.createElement('p'); p.textContent=cluster.goal;
+      const list=document.createElement('ul'); list.className='entity-list';
+      (cluster.fields||[]).forEach(field=>{const li=document.createElement('li'); li.textContent=field; list.appendChild(li);});
+      body.append(h,p,list); card.appendChild(body); return card;
+    }));
+  }catch(_){root.textContent='Content plan unavailable.';}
+})();
+</script>
+</body>
+</html>

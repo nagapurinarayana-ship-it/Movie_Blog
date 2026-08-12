@@ -1,0 +1,1 @@
+Phase 8 is ready for merge. The repository now has the editorial inventory contracts, queue, refresh manifest, content planning surface, and content status surface. Factual inventory remains intentionally unseeded until verified.

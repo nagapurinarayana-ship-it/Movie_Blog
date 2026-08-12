@@ -4,125 +4,80 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Movie Details — MovieBlog</title>
-  <meta name="description" content="Movie details, cast, release information and more on MovieBlog.">
+  <meta name="description" content="Movie details, cast, crew, box office, OTT and related information on MovieBlog.">
   <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/movie.html">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-  <header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
-  <main class="container section">
-    <div id="movieDetails" aria-live="polite">Loading movie…</div>
-  </main>
-  <footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
-  <script>
-    (() => {
-      const root = document.getElementById('movieDetails');
-      const params = new URLSearchParams(location.search);
-      const id = params.get('id');
-      const localUrl = '../data/movies.json';
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
+<main class="container section"><div id="movieDetails" aria-live="polite">Loading movie…</div></main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script src="../assets/js/entities.js" defer></script>
+<script>
+(() => {
+  const root = document.getElementById('movieDetails');
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const base = '../data/';
 
-      function normalize(m) {
-        return {
-          ...m,
-          id: m.id || m.imdbID,
-          title: m.title || m.name || 'Untitled',
-          poster: m.poster || m.posterURL || m.poster_path || m.imageUrl || '',
-          overview: m.overview || m.plot || m.description || m.storyline || '',
-          releaseDate: String(m.releaseDate || m.release_date || m.year || ''),
-          rating: Number(m.rating || m.vote_average || m.imdbRating || 0),
-          runtime: Number(m.runtime || m.runtimeMinutes || 0),
-          cast: Array.isArray(m.cast) ? m.cast : (Array.isArray(m.actors) ? m.actors : []),
-          genres: Array.isArray(m.genres) ? m.genres : (Array.isArray(m.genre) ? m.genre : [])
-        };
-      }
+  function text(tag, value, className) { const node=document.createElement(tag); node.textContent=value||''; if(className)node.className=className; return node; }
+  function linkTo(label, url) { const a=document.createElement('a'); a.className='entity-link'; a.href=url; a.textContent=label; return a; }
+  function section(title) { const wrap=document.createElement('section'); wrap.className='detail-section'; wrap.appendChild(text('h2',title)); return wrap; }
+  async function json(file, fallback){ try { const r=await fetch(base+file,{cache:'no-store'}); if(!r.ok)throw new Error(); return await r.json(); } catch(_) { return fallback; } }
+  function normalize(m) {
+    return {...m,id:m.id||m.imdbID,title:m.title||m.name||'Untitled',poster:m.poster||m.posterURL||m.poster_path||m.imageUrl||'',overview:m.overview||m.plot||m.description||m.storyline||'',releaseDate:String(m.releaseDate||m.release_date||m.year||''),rating:Number(m.rating||m.vote_average||m.imdbRating||0),runtime:Number(m.runtime||m.runtimeMinutes||0),cast:Array.isArray(m.cast)?m.cast:(Array.isArray(m.actors)?m.actors:[]),genres:Array.isArray(m.genres)?m.genres:(Array.isArray(m.genre)?m.genre:[]),director:m.director||m.directorName||''};
+  }
+  async function getMovies(){
+    try{const r=await fetch(base+'movies.json',{cache:'no-store'});if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)return d.map(normalize);}}catch(_){}
+    const endpoints=['https://api.sampleapis.com/movies/action','https://api.sampleapis.com/movies/drama','https://api.sampleapis.com/movies/comedy'];
+    const results=await Promise.allSettled(endpoints.map(u=>fetch(u)));const movies=[];for(const result of results){if(result.status!=='fulfilled'||!result.value.ok)continue;try{const d=await result.value.json();if(Array.isArray(d))movies.push(...d.map(normalize));}catch(_){}}
+    return movies;
+  }
+  function renderEmptyData(label, message){ const p=text('p',message,'muted'); const s=section(label); s.appendChild(p); return s; }
 
-      async function getMovies() {
-        try {
-          const response = await fetch(localUrl, { cache: 'no-store' });
-          if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length) return data.map(normalize);
-          }
-        } catch (_) {}
-        const endpoints = ['https://api.sampleapis.com/movies/action','https://api.sampleapis.com/movies/drama','https://api.sampleapis.com/movies/comedy'];
-        const results = await Promise.allSettled(endpoints.map(url => fetch(url)));
-        const movies = [];
-        for (const result of results) {
-          if (result.status !== 'fulfilled' || !result.value.ok) continue;
-          try {
-            const data = await result.value.json();
-            if (Array.isArray(data)) movies.push(...data.map(normalize));
-          } catch (_) {}
-        }
-        return movies;
-      }
+  async function render(){
+    if(!id){root.textContent='Missing movie id.';return;}
+    try{
+      const [movies, entities, boxOffice, ott] = await Promise.all([
+        getMovies(),
+        window.MovieBlogEntities.loadEntities(),
+        json('box-office.json',{movies:{}}),
+        json('ott.json',{movies:{}})
+      ]);
+      const movie=movies.find(item=>String(item.id)===String(id));
+      if(!movie){root.textContent='Movie not found. Entity data will appear as the catalog grows.';return;}
 
-      function text(tag, value, className) {
-        const node = document.createElement(tag);
-        node.textContent = value || '';
-        if (className) node.className = className;
-        return node;
-      }
+      document.title=`${movie.title} — MovieBlog`;
+      const description=(movie.overview||`Find ${movie.title} movie details, cast and release information on MovieBlog.`).slice(0,155);
+      document.querySelector('meta[name="description"]').setAttribute('content',description);
 
-      async function render() {
-        if (!id) { root.textContent = 'Missing movie id.'; return; }
-        try {
-          const movies = await getMovies();
-          const movie = movies.find(item => String(item.id) === String(id));
-          if (!movie) { root.textContent = 'Movie not found.'; return; }
+      const article=document.createElement('article');article.className='card detail-card';
+      const posterWrap=document.createElement('div');posterWrap.className='poster-wrap';
+      const poster=document.createElement('img');poster.className='poster';poster.loading='eager';poster.alt=`${movie.title} poster`;poster.src=movie.poster||'../assets/placeholder.png';posterWrap.appendChild(poster);
+      const body=document.createElement('div');body.className='card-body';
+      body.append(text('p','MOVIE','eyebrow'),text('h1',movie.title),text('p',`⭐ ${movie.rating||0} • ${movie.releaseDate||'Release TBA'} • ${movie.runtime||0} min`,'meta'),text('p',description,'overview'));
 
-          document.title = `${movie.title} — MovieBlog`;
-          const description = movie.overview || `Find ${movie.title} movie details, cast and release information on MovieBlog.`;
-          document.querySelector('meta[name="description"]').setAttribute('content', description.slice(0, 155));
+      const credits=section('Cast & Crew');
+      if(movie.director){ credits.appendChild(text('p','Director: ','meta')); credits.appendChild(linkTo(movie.director,`director.html?id=${encodeURIComponent(window.MovieBlogEntities.slugify(movie.director))}`)); }
+      if(movie.cast.length){ const castWrap=document.createElement('div');castWrap.className='entity-list-inline'; const actorByName=new Map(entities.actors.map(a=>[a.name.toLowerCase(),a])); movie.cast.forEach(name=>{const actor=actorByName.get(String(name).toLowerCase())||{name,id:window.MovieBlogEntities.slugify(name)};castWrap.appendChild(linkTo(name,`actor.html?id=${encodeURIComponent(actor.id)}`));});credits.appendChild(castWrap); }
+      if(!movie.director&&!movie.cast.length) credits.appendChild(text('p','Cast and crew information will be added as entity data is populated.','muted'));
+      body.appendChild(credits);
 
-          const article = document.createElement('article');
-          article.className = 'card detail-card';
-          const posterWrap = document.createElement('div');
-          posterWrap.className = 'poster-wrap';
-          const poster = document.createElement('img');
-          poster.className = 'poster';
-          poster.loading = 'eager';
-          poster.alt = `${movie.title} poster`;
-          poster.src = movie.poster || '../assets/placeholder.png';
-          posterWrap.appendChild(poster);
+      const box=boxOffice.movies?.[String(movie.id)];
+      if(box){const s=section('Box Office');[['India Net',box.indiaNet],['India Gross',box.indiaGross],['Overseas',box.overseas],['Worldwide',box.worldwide],['Verdict',box.verdict]].forEach(([k,v])=>{if(v!=null&&v!==''){const row=text('p',`${k}: ${v}`,'meta');s.appendChild(row);}}); if(Array.isArray(box.daily)&&box.daily.length){s.appendChild(text('h3','Day-wise'));const list=document.createElement('ul');list.className='entity-list';box.daily.forEach(d=>{list.appendChild(text('li',`${d.day || ''}: ${d.value || ''}`));});s.appendChild(list);} body.appendChild(s);} else body.appendChild(renderEmptyData('Box Office','Box-office tracking is ready; figures will appear after approved data is added.'));
 
-          const body = document.createElement('div');
-          body.className = 'card-body';
-          body.appendChild(text('p', 'MOVIE', 'eyebrow'));
-          body.appendChild(text('h1', movie.title));
-          body.appendChild(text('p', `⭐ ${movie.rating || 0} • ${movie.releaseDate || 'Release TBA'} • ${movie.runtime || 0} min`, 'meta'));
-          body.appendChild(text('p', description, 'overview'));
-          body.appendChild(text('h2', 'Cast'));
-          body.appendChild(text('p', movie.cast.length ? movie.cast.join(', ') : 'Cast information will be added soon.', 'meta'));
-          if (movie.genres.length) body.appendChild(text('p', `Genres: ${movie.genres.join(', ')}`, 'meta'));
-          const back = document.createElement('a');
-          back.className = 'secondary-btn';
-          back.href = '../pages/search.html';
-          back.textContent = '← Back to search';
-          body.appendChild(back);
+      const ottMovie=ott.movies?.[String(movie.id)];
+      if(ottMovie){const s=section('OTT'); if(ottMovie.platform)s.appendChild(text('p',`Platform: ${ottMovie.platform}`,'meta')); if(ottMovie.releaseDate)s.appendChild(text('p',`Release date: ${ottMovie.releaseDate}`,'meta')); body.appendChild(s);} else body.appendChild(renderEmptyData('OTT','OTT availability will appear after release data is added.'));
 
-          article.append(posterWrap, body);
-          root.replaceChildren(article);
+      const back=document.createElement('a');back.className='secondary-btn';back.href='../pages/search.html';back.textContent='← Back to search';body.appendChild(back);
+      article.append(posterWrap,body);root.replaceChildren(article);
 
-          const schema = {
-            '@context':'https://schema.org',
-            '@type':'Movie',
-            name:movie.title,
-            image:movie.poster || undefined,
-            dateCreated:movie.releaseDate || undefined,
-            description:description
-          };
-          const script = document.createElement('script');
-          script.type = 'application/ld+json';
-          script.textContent = JSON.stringify(schema);
-          document.head.appendChild(script);
-        } catch (error) {
-          root.textContent = 'Movie details could not be loaded. Please try again.';
-          console.error(error);
-        }
-      }
-      render();
-    })();
-  </script>
+      const schema={'@context':'https://schema.org','@type':'Movie',name:movie.title,description:movie.overview||undefined,image:movie.poster||undefined,dateCreated:movie.releaseDate||undefined};
+      const schemaScript=document.createElement('script');schemaScript.type='application/ld+json';schemaScript.textContent=JSON.stringify(schema);document.head.appendChild(schemaScript);
+    }catch(error){root.textContent='Movie details could not be loaded. Please try again.';console.error(error);}
+  }
+  document.addEventListener('DOMContentLoaded',render);
+})();
+</script>
 </body>
 </html>

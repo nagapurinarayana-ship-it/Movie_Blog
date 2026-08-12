@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trending Radar — MovieBlog</title>
+  <meta name="description" content="MovieBlog Trending Radar highlights India search trends and identifies entertainment content opportunities using Google Trends signals.">
+  <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/trending.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
+  <main class="container section">
+    <div class="title-row">
+      <div>
+        <p class="eyebrow">TRENDING RADAR</p>
+        <h1>What India is searching for right now</h1>
+        <p class="muted trend-lede">We use Google Trends Trending Now signals to find sudden search spikes, then filter and score them for MovieBlog relevance.</p>
+      </div>
+      <div class="controls">
+        <label class="sr-only" for="trendFilter">Filter trend opportunities</label>
+        <select id="trendFilter">
+          <option value="all">All signals</option>
+          <option value="high">High opportunities</option>
+          <option value="medium">Possible opportunities</option>
+        </select>
+        <button id="trendRefresh" class="primary-btn" type="button">Refresh</button>
+      </div>
+    </div>
+    <p id="trendStatus" class="trend-status" aria-live="polite">Loading India trends…</p>
+    <section id="trendList" class="trend-list" aria-live="polite"></section>
+    <section class="content-note section">
+      <p class="eyebrow">HOW IT WORKS</p>
+      <h2>Trend signal → relevance → content opportunity</h2>
+      <p>Trending Radar does not automatically publish articles. It identifies search spikes and gives them an opportunity score so we can decide which topics deserve research and original coverage.</p>
+      <p><a href="https://trends.google.com/trending?geo=IN" target="_blank" rel="noopener noreferrer">View Google Trends India</a></p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+  <script src="../assets/js/trending.js" defer></script>
+</body>
+</html>

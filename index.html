@@ -1,62 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Movie Hub — Discover & Bookmark Movies</title>
-  <meta name="description" content="Movie Hub — Browse trending, latest and top-rated movies. Fast, accessible, and installable PWA with offline support.">
+  <title>MovieBlog — Movies, OTT, Celebrities & Trending Entertainment</title>
+  <meta name="description" content="MovieBlog helps you discover movies, OTT releases, celebrities and the entertainment topics people are searching for right now.">
   <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Movie Hub">
-  <meta property="og:description" content="Discover trending, popular and recommended movies. Add favorites and watch later.">
+  <meta property="og:title" content="MovieBlog — Movies, OTT & Trending Entertainment">
+  <meta property="og:description" content="Discover movies, OTT releases, celebrities and trending entertainment topics. Fast, useful and mobile-first.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://nagapurinarayana-ship-it.github.io/Movie_Blog/">
-  <meta property="og:image" content="https://picsum.photos/1200/630?movie">
-
-  <!-- Twitter -->
+  <meta property="og:image" content="https://picsum.photos/1200/630?movieblog">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Movie Hub">
-  <meta name="twitter:description" content="Discover trending, popular and recommended movies.">
-  <meta name="twitter:image" content="https://picsum.photos/1200/630?movie">
-
-  <link rel="manifest" href="/manifest.json">
+  <meta name="twitter:title" content="MovieBlog — Movies, OTT & Trending Entertainment">
+  <meta name="twitter:description" content="Discover movies, OTT releases, celebrities and trending entertainment topics.">
+  <meta name="twitter:image" content="https://picsum.photos/1200/630?movieblog">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0f1724">
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/assets/css/ui.css">
-
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./assets/css/ui.css">
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Movie Hub",
-    "url": "https://nagapurinarayana-ship-it.github.io/Movie_Blog/",
-    "description": "Discover trending, popular and recommended movies."
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"MovieBlog",
+    "url":"https://nagapurinarayana-ship-it.github.io/Movie_Blog/",
+    "description":"Movies, OTT, celebrities and trending entertainment information.",
+    "potentialAction":{"@type":"SearchAction","target":"https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/search.html?q={search_term_string}","query-input":"required name=search_term_string"}
   }
   </script>
-
 </head>
 <body class="dark">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="nav">
     <div class="container nav-inner">
       <div class="brand">
-        <button id="menuToggle" class="hamburger" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-        <a href="/" class="logo" aria-label="Movie Hub">🎬 Movie Hub</a>
+        <button id="menuToggle" class="hamburger" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <a href="./" class="logo" aria-label="MovieBlog home">🎬 MovieBlog</a>
       </div>
-
       <nav id="mainNav" class="main-nav" aria-label="Primary">
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/pages/search.html">Search</a></li>
-          <li><a href="/pages/category.html">Categories</a></li>
-          <li><a href="/pages/about.html">About</a></li>
+          <li><a href="./">Home</a></li>
+          <li><a href="./pages/search.html">Search</a></li>
+          <li><a href="./pages/category.html">Categories</a></li>
+          <li><a href="./pages/about.html">About</a></li>
         </ul>
       </nav>
-
       <div class="nav-actions">
-        <button id="themeToggle" class="icon-btn" aria-pressed="false" title="Toggle dark mode">🌙</button>
-        <a href="#favorites" id="favBtn" class="icon-btn" title="Favorites">❤ <span id="fav-count"></span></a>
+        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false" title="Toggle theme">🌙</button>
+        <a href="./pages/search.html?fav=1" id="favBtn" class="icon-btn" title="Favorites">❤ <span id="fav-count"></span></a>
       </div>
     </div>
   </header>
@@ -65,89 +57,77 @@
     <section class="hero container">
       <div class="hero-inner">
         <div class="hero-text">
-          <h1>Discover Your Next Favourite Movie</h1>
-          <p class="muted">Fast, accessible, and installable. Browse trending, latest and top-rated movies with smooth animations and offline support.</p>
-
+          <p class="eyebrow">MOVIES • OTT • CELEBRITIES • TRENDING</p>
+          <h1>Know what to watch. Know what people are searching for.</h1>
+          <p class="hero-copy">MovieBlog is being built as a fast, useful entertainment hub — starting with movies and expanding into OTT, celebrity, music and trend intelligence.</p>
           <div class="search-wrap">
-            <input id="searchBox" type="search" inputmode="search" autocomplete="off" placeholder="Search movies, actors, genres..." aria-label="Search movies">
+            <label class="sr-only" for="searchBox">Search movies, actors or genres</label>
+            <input id="searchBox" type="search" inputmode="search" autocomplete="off" placeholder="Search movies, actors, genres..." aria-label="Search movies, actors or genres">
             <ul id="suggestions" class="suggestions" role="listbox" aria-hidden="true"></ul>
           </div>
-        </div>
-
-        <div class="hero-visual" aria-hidden="true">
-          <div class="featured" id="featured">
-            <!-- Featured Movie injected here -->
-            <div class="skeleton skeleton-hero"></div>
+          <div class="hero-links">
+            <a class="primary-btn" href="./pages/search.html">Explore movies</a>
+            <a class="secondary-btn" href="./pages/category.html">Browse categories</a>
           </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="featured" id="featured"><div class="skeleton skeleton-hero"></div></div>
         </div>
       </div>
     </section>
 
+    <section class="container section intro-grid" aria-label="MovieBlog roadmap">
+      <article class="feature-panel">
+        <span class="panel-icon">🔥</span>
+        <div><h2>Trending Now</h2><p>Today's movie list is the foundation for our future Trending Radar, which will identify entertainment search spikes and turn them into content opportunities.</p></div>
+      </article>
+      <article class="feature-panel">
+        <span class="panel-icon">🎬</span>
+        <div><h2>Movie Intelligence</h2><p>Each important movie will eventually have one permanent page covering cast, crew, reviews, box office, OTT and related news.</p></div>
+      </article>
+      <article class="feature-panel">
+        <span class="panel-icon">⚡</span>
+        <div><h2>Built for speed</h2><p>Mobile-first, lightweight pages, native lazy loading and no unnecessary paid services are part of the core design.</p></div>
+      </article>
+    </section>
+
     <section class="container section title-row">
-      <h2>🔥 Trending Movies</h2>
+      <div><p class="eyebrow">DISCOVER</p><h2>🔥 Trending Movies</h2></div>
       <div class="controls">
-        <select id="filterGenre" aria-label="Filter by genre">
-          <option value="all">All Genres</option>
-        </select>
-        <select id="sortBy" aria-label="Sort movies">
-          <option value="trending">Trending</option>
-          <option value="latest">Latest</option>
-          <option value="rating">Top Rated</option>
-        </select>
+        <label class="sr-only" for="filterGenre">Filter by genre</label>
+        <select id="filterGenre"><option value="all">All Genres</option></select>
+        <label class="sr-only" for="sortBy">Sort movies</label>
+        <select id="sortBy"><option value="trending">Trending</option><option value="latest">Latest</option><option value="rating">Top Rated</option></select>
       </div>
     </section>
 
     <section id="movieGrid" class="container movies" aria-live="polite">
-      <!-- movie cards rendered by script.js -->
       <template id="cardTemplate">
         <article class="card" tabindex="0">
-          <div class="poster-wrap">
-            <img loading="lazy" alt="Movie poster" class="poster">
-            <button class="fav-toggle" aria-pressed="false" title="Add to favorites">♡</button>
-          </div>
-          <div class="card-body">
-            <h3 class="title"></h3>
-            <p class="meta"></p>
-            <p class="overview"></p>
-          </div>
+          <div class="poster-wrap"><img loading="lazy" decoding="async" alt="Movie poster" class="poster"><button class="fav-toggle" type="button" aria-pressed="false" title="Add to favorites">♡</button></div>
+          <div class="card-body"><h3 class="title"></h3><p class="meta"></p><p class="overview"></p></div>
         </article>
       </template>
-
-      <div id="loading" class="loading">Loading...</div>
-      <button id="loadMore" style="display:none">Load more</button>
-      <div id="spinner" style="display:none" aria-hidden="true">⏳</div>
+      <div id="loading" class="loading">Loading movies…</div>
     </section>
 
-    <button id="scrollTop" class="scroll-top" aria-label="Scroll to top">↑</button>
+    <section class="container section content-note">
+      <p class="eyebrow">WHAT'S NEXT</p>
+      <h2>From a movie browser to a complete entertainment destination</h2>
+      <p>Phase 1 keeps the existing PWA foundation while fixing the project-site paths and establishing the MovieBlog brand. Future phases add structured movie, actor and director pages, box-office tracking, OTT coverage and the free Trending Radar.</p>
+    </section>
 
+    <button id="scrollTop" class="scroll-top" type="button" aria-label="Scroll to top">↑</button>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <div class="footer-col">
-        <h4>Movie Hub</h4>
-        <p class="muted">© 2026 Movie Hub — Built for speed, accessibility and privacy.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="/pages/search.html">Search</a></li>
-          <li><a href="/pages/category.html">Categories</a></li>
-          <li><a href="/pages/about.html">About</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="/pages/privacy.html">Privacy</a></li>
-          <li><a href="/pages/terms.html">Terms</a></li>
-          <li><a href="/pages/disclaimer.html">Disclaimer</a></li>
-        </ul>
-      </div>
+      <div class="footer-col"><h4>MovieBlog</h4><p class="muted">© 2026 MovieBlog — Built for speed, usefulness and privacy.</p></div>
+      <div class="footer-col"><h4>Explore</h4><ul><li><a href="./pages/search.html">Search</a></li><li><a href="./pages/category.html">Categories</a></li><li><a href="./pages/about.html">About</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="./pages/privacy.html">Privacy</a></li><li><a href="./pages/terms.html">Terms</a></li><li><a href="./pages/disclaimer.html">Disclaimer</a></li></ul></div>
     </div>
   </footer>
-
-  <script src="/script.js" defer></script>
-  <script src="/assets/js/search.js" defer></script>
+  <script src="./script.js" defer></script>
+  <script src="./assets/js/search.js" defer></script>
 </body>
 </html>

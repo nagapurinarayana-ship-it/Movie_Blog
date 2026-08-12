@@ -1,0 +1,1 @@
+Phase 8 editorial inventory files are intentionally planning contracts. Real movie, box-office, OTT and news facts must be populated only from approved/licensed sources and reviewed before publication.

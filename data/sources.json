@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "toi-awarapan-advance-2026-08-13",
+      "name": "Times of India",
+      "url": "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/box-office/emraan-hashmis-awarapan-2-edges-past-sunny-deols-batwara-1947-in-advance-bookings-ahead-of-big-independence-day-clash-collects-rs-2-5-crore/articleshow/133187864.cms",
+      "accessed": "2026-08-13",
+      "use": "Current advance-booking and release-clash signal"
+    },
+    {
+      "id": "toi-spiderman-day13-2026-08-13",
+      "name": "Times of India",
+      "url": "https://timesofindia.indiatimes.com/entertainment/english/hollywood/box-office/spider-man-brand-new-day-box-office-collections-day-13-tom-holland-starrer-nears-rs-520-crore-gross-in-india-despite-awarapan-2-and-batwara-1947-opening-advance-ticket-sales/articleshow/133167425.cms",
+      "accessed": "2026-08-13",
+      "use": "Current India box-office and competitive-release signal"
+    },
+    {
+      "id": "et-microdrama-india-2026-08-13",
+      "name": "Economic Times",
+      "url": "https://m.economictimes.com/industry/media/entertainment/media/from-reels-to-episodes-80-indians-embrace-microdrama-as-new-entertainment-habit/articleshow/133192716.cms",
+      "accessed": "2026-08-13",
+      "use": "Current Indian entertainment-consumption trend"
+    }
+  ],
+  "notes": "Sources are research inputs. Verify facts against the source before publication and do not reproduce third-party articles verbatim."
+}

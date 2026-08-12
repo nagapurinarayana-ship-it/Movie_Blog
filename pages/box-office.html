@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Box Office — MovieBlog</title>
+  <meta name="description" content="MovieBlog box-office hub for reported and estimated movie collections. Figures are shown only when approved data is available.">
+  <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/box-office.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
+<main class="container section">
+  <p class="eyebrow">MOVIE DATA</p>
+  <h1>Box Office</h1>
+  <p class="hero-copy">A structured home for India, overseas and worldwide collections. MovieBlog will show a figure only when it has a recorded source and status.</p>
+  <div id="boxOffice" class="intro-grid" aria-live="polite"></div>
+</main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script>
+(async () => {
+  const root = document.getElementById('boxOffice');
+  try {
+    const r = await fetch('../data/box-office.json', { cache: 'no-store' });
+    const data = await r.json();
+    const movies = data.movies || {};
+    const ids = Object.keys(movies);
+    if (!ids.length) {
+      root.innerHTML = '<article class="feature-panel"><span class="panel-icon">📊</span><div><h2>Tracking is ready</h2><p>Box-office figures will appear here after approved data is added. No numbers are fabricated.</p></div></article>';
+      return;
+    }
+    ids.forEach(id => {
+      const item = movies[id];
+      const card = document.createElement('article');
+      card.className = 'feature-panel';
+      const body = document.createElement('div');
+      body.appendChild(Object.assign(document.createElement('h2'), { textContent: item.title || id }));
+      body.appendChild(Object.assign(document.createElement('p'), { textContent: `India Net: ${item.indiaNet || '—'} • Worldwide: ${item.worldwide || '—'} • Verdict: ${item.verdict || '—'}` }));
+      card.appendChild(Object.assign(document.createElement('span'), { className: 'panel-icon', textContent: '🎟️' }));
+      card.appendChild(body);
+      root.appendChild(card);
+    });
+  } catch (_) {
+    root.textContent = 'Box-office data could not be loaded.';
+  }
+})();
+</script>
+</body>
+</html>

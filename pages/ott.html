@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OTT Releases — MovieBlog</title>
+  <meta name="description" content="MovieBlog OTT release hub for streaming platforms and release dates when verified data is available.">
+  <link rel="canonical" href="https://nagapurinarayana-ship-it.github.io/Movie_Blog/pages/ott.html">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search.html">Search</a></div></header>
+<main class="container section">
+  <p class="eyebrow">STREAMING</p>
+  <h1>OTT Releases</h1>
+  <p class="hero-copy">A structured home for Netflix, Prime Video, JioHotstar, ZEE5, SonyLIV and other platforms. Release information will be shown only after it is added to the approved data store.</p>
+  <div id="ott" class="intro-grid" aria-live="polite"></div>
+</main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script>
+(async () => {
+  const root = document.getElementById('ott');
+  try {
+    const r = await fetch('../data/ott.json', { cache: 'no-store' });
+    const data = await r.json();
+    const movies = data.movies || {};
+    const ids = Object.keys(movies);
+    if (!ids.length) {
+      root.innerHTML = '<article class="feature-panel"><span class="panel-icon">📺</span><div><h2>OTT tracking is ready</h2><p>Platform and release-date information will appear here after verified data is added.</p></div></article>';
+      return;
+    }
+    ids.forEach(id => {
+      const item = movies[id];
+      const card = document.createElement('article');
+      card.className = 'feature-panel';
+      card.appendChild(Object.assign(document.createElement('span'), { className: 'panel-icon', textContent: '📺' }));
+      const body = document.createElement('div');
+      body.appendChild(Object.assign(document.createElement('h2'), { textContent: item.title || id }));
+      body.appendChild(Object.assign(document.createElement('p'), { textContent: `Platform: ${item.platform || '—'} • Release: ${item.releaseDate || '—'}` }));
+      card.appendChild(body);
+      root.appendChild(card);
+    });
+  } catch (_) {
+    root.textContent = 'OTT data could not be loaded.';
+  }
+})();
+</script>
+</body>
+</html>

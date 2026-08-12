@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Editorial inventory plan for MovieBlog. This file describes what should be populated from approved sources; it does not contain fabricated facts.",
+  "priorityClusters": [
+    {"slug":"movie-pages","label":"Movie pages","goal":"Permanent searchable pages for important movies","fields":["title","releaseDate","language","genres","overview","cast","director","poster","trailer","rating"]},
+    {"slug":"box-office","label":"Box office","goal":"Verified daily and lifetime collection pages","fields":["movieId","date","indiaNet","indiaGross","overseas","worldwide","source","updatedAt","confidence"]},
+    {"slug":"ott","label":"OTT","goal":"Verified streaming availability and release information","fields":["movieId","platform","releaseDate","region","source","updatedAt"]},
+    {"slug":"people","label":"People","goal":"Actor and director entity pages connected to movies","fields":["name","knownFor","filmography","source"]},
+    {"slug":"news","label":"News","goal":"Original, verified entertainment reporting linked to entities","fields":["title","excerpt","body","publishedAt","author","entities","source"]}
+  ],
+  "editorialRules": [
+    "Do not fabricate ratings, box-office figures, release dates, cast, OTT availability or trend values.",
+    "Use approved/licensed sources and preserve source attribution where required.",
+    "Treat search trends as discovery signals, not evidence of a factual claim.",
+    "Prefer one canonical entity page plus focused supporting articles instead of duplicate pages.",
+    "Re-verify time-sensitive values before publication or major updates."
+  ]
+}

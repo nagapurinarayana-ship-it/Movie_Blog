@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "searchConsole": {
+    "verificationConfigured": false,
+    "verificationMetaName": "google-site-verification"
+  },
+  "sitemap": {
+    "enabled": true,
+    "canonicalHost": "https://nagapurinarayana-ship-it.github.io/Movie_Blog/"
+  },
+  "performance": {
+    "nativeLazyLoading": true,
+    "preconnectImageHosts": true,
+    "avoidRenderBlockingThirdPartyScripts": true
+  },
+  "content": {
+    "requireOriginalOrLicensedSource": true,
+    "doNotAutoPublishTrendSignals": true
+  }
+}

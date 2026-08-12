@@ -33,4 +33,26 @@
   }
 
   window.MovieBlogDataProvider = { normalize, popular, search };
+
+  // Compatibility bridge: the existing fallback loader uses demo endpoints when
+  // the local catalog is empty. Route those calls through MovieBlog's provider.
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async (input, init) => {
+    const requestUrl = typeof input === 'string' ? input : input?.url || '';
+    if (requestUrl.includes('api.sampleapis.com/movies/')) {
+      try {
+        const movies = await popular(1);
+        return new Response(JSON.stringify(movies), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (_) {
+        return new Response('[]', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    return originalFetch(input, init);
+  };
 })();

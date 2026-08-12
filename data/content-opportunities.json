@@ -1,0 +1,13 @@
+{
+  "opportunities": [],
+  "schemaVersion": 1,
+  "workflow": [
+    "discover from Trending Radar",
+    "research and verify facts",
+    "write original coverage",
+    "link relevant entities",
+    "human review",
+    "publish"
+  ],
+  "notes": "Trend signals are not proof of facts. Do not auto-publish or fabricate claims from a trend alone."
+}

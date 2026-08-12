@@ -1,0 +1,1 @@
+{"schemaVersion":1,"queue":[],"workflow":["trend-signal","research","verify","draft","editor-review","publish"],"notes":"Queue items must contain a verifiable source before publication. No automatic publishing."}

@@ -43,6 +43,8 @@
           <li><a href="./">Home</a></li>
           <li><a href="./pages/search.html">Search</a></li>
           <li><a href="./pages/category.html">Categories</a></li>
+          <li><a href="./pages/box-office.html">Box Office</a></li>
+          <li><a href="./pages/ott.html">OTT</a></li>
           <li><a href="./pages/about.html">About</a></li>
         </ul>
       </nav>
@@ -77,18 +79,9 @@
     </section>
 
     <section class="container section intro-grid" aria-label="MovieBlog roadmap">
-      <article class="feature-panel">
-        <span class="panel-icon">🔥</span>
-        <div><h2>Trending Now</h2><p>Today's movie list is the foundation for our future Trending Radar, which will identify entertainment search spikes and turn them into content opportunities.</p></div>
-      </article>
-      <article class="feature-panel">
-        <span class="panel-icon">🎬</span>
-        <div><h2>Movie Intelligence</h2><p>Each important movie will eventually have one permanent page covering cast, crew, reviews, box office, OTT and related news.</p></div>
-      </article>
-      <article class="feature-panel">
-        <span class="panel-icon">⚡</span>
-        <div><h2>Built for speed</h2><p>Mobile-first, lightweight pages, native lazy loading and no unnecessary paid services are part of the core design.</p></div>
-      </article>
+      <article class="feature-panel"><span class="panel-icon">🔥</span><div><h2>Trending Now</h2><p>Today's movie list is the foundation for our future Trending Radar, which will identify entertainment search spikes and turn them into content opportunities.</p></div></article>
+      <article class="feature-panel"><span class="panel-icon">🎬</span><div><h2>Movie Intelligence</h2><p>Each important movie will eventually have one permanent page covering cast, crew, reviews, box office, OTT and related news.</p></div></article>
+      <article class="feature-panel"><span class="panel-icon">⚡</span><div><h2>Built for speed</h2><p>Mobile-first, lightweight pages, native lazy loading and no unnecessary paid services are part of the core design.</p></div></article>
     </section>
 
     <section class="container section title-row">
@@ -102,19 +95,15 @@
     </section>
 
     <section id="movieGrid" class="container movies" aria-live="polite">
-      <template id="cardTemplate">
-        <article class="card" tabindex="0">
-          <div class="poster-wrap"><img loading="lazy" decoding="async" alt="Movie poster" class="poster"><button class="fav-toggle" type="button" aria-pressed="false" title="Add to favorites">♡</button></div>
-          <div class="card-body"><h3 class="title"></h3><p class="meta"></p><p class="overview"></p></div>
-        </article>
-      </template>
+      <template id="cardTemplate"><article class="card" tabindex="0"><div class="poster-wrap"><img loading="lazy" decoding="async" alt="Movie poster" class="poster"><button class="fav-toggle" type="button" aria-pressed="false" title="Add to favorites">♡</button></div><div class="card-body"><h3 class="title"></h3><p class="meta"></p><p class="overview"></p></div></article></template>
       <div id="loading" class="loading">Loading movies…</div>
     </section>
 
     <section class="container section content-note">
-      <p class="eyebrow">WHAT'S NEXT</p>
-      <h2>From a movie browser to a complete entertainment destination</h2>
-      <p>Phase 1 keeps the existing PWA foundation while fixing the project-site paths and establishing the MovieBlog brand. Future phases add structured movie, actor and director pages, box-office tracking, OTT coverage and the free Trending Radar.</p>
+      <p class="eyebrow">PHASE 3</p>
+      <h2>Real data, cleanly sourced</h2>
+      <p>MovieBlog now supports a server-side TMDB data adapter for non-commercial use with required attribution. Local curated data remains the primary fallback, so the site can still operate without a provider key.</p>
+      <p class="muted">Movie data and images supplied through TMDB are subject to TMDB terms. MovieBlog is not endorsed or certified by TMDB.</p>
     </section>
 
     <button id="scrollTop" class="scroll-top" type="button" aria-label="Scroll to top">↑</button>
@@ -123,10 +112,11 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-col"><h4>MovieBlog</h4><p class="muted">© 2026 MovieBlog — Built for speed, usefulness and privacy.</p></div>
-      <div class="footer-col"><h4>Explore</h4><ul><li><a href="./pages/search.html">Search</a></li><li><a href="./pages/category.html">Categories</a></li><li><a href="./pages/about.html">About</a></li></ul></div>
+      <div class="footer-col"><h4>Explore</h4><ul><li><a href="./pages/search.html">Search</a></li><li><a href="./pages/category.html">Categories</a></li><li><a href="./pages/box-office.html">Box Office</a></li><li><a href="./pages/ott.html">OTT</a></li></ul></div>
       <div class="footer-col"><h4>Legal</h4><ul><li><a href="./pages/privacy.html">Privacy</a></li><li><a href="./pages/terms.html">Terms</a></li><li><a href="./pages/disclaimer.html">Disclaimer</a></li></ul></div>
     </div>
   </footer>
+  <script src="./assets/js/data-provider.js" defer></script>
   <script src="./script.js" defer></script>
   <script src="./assets/js/search.js" defer></script>
 </body>

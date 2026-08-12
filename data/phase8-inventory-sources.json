@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Verified source registry for the initial MovieBlog inventory",
+  "rules": [
+    "Use release dates and cast details only when supported by a cited source.",
+    "Do not invent ratings, runtimes, budgets, box-office figures, OTT dates or review scores.",
+    "Keep source URL metadata alongside seeded records.",
+    "Expand the catalog incrementally through verified updates."
+  ],
+  "sources": [
+    {"name":"Times of India","url":"https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news/emraan-hashmi-returns-as-shivam-pandit-in-awarapan-2-after-19-years-heres-reasons-why-sequel-deserves-your-attention/articleshow/133182257.cms"},
+    {"name":"Times of India","url":"https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/box-office/emraan-hashmis-awarapan-2-edges-past-sunny-deols-batwara-1947-in-advance-bookings-ahead-of-big-independence-day-clash-collects-rs-2-5-crore/articleshow/133187864.cms"},
+    {"name":"Times of India","url":"https://timesofindia.indiatimes.com/entertainment/english/hollywood/box-office/spider-man-brand-new-day-box-office-collections-day-13-tom-holland-starrer-nears-rs-520-crore-gross-in-india-despite-awarapan-2-and-batwara-1947-opening-advance-ticket-sales/articleshow/133167425.cms"},
+    {"name":"Filmibeat","url":"https://www.filmibeat.com/bollywood/movies/august-2026.html"},
+    {"name":"Bollywood Hungama","url":"https://www.bollywoodhungama.com/movie-release-dates/"}
+  ]
+}

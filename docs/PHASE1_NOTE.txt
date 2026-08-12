@@ -1,1 +1,0 @@
-MovieBlog V2 Phase 1 is documented in docs/MOVIEBLOG_V2_PHASE1.md.

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "provider": "",
+  "measurementId": "",
+  "privacy": {
+    "respectDoNotTrack": true,
+    "anonymizeIp": true,
+    "noPersonallyIdentifiableInformation": true
+  }
+}

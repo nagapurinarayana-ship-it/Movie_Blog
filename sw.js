@@ -1,4 +1,4 @@
-const CACHE_NAME = 'movieblog-v2-phase1';
+const CACHE_NAME = 'movieblog-v3-phase3';
 const BASE = new URL('./', self.registration.scope).pathname;
 const OFFLINE_URL = `${BASE}offline.html`;
 const ASSETS = [
@@ -6,7 +6,10 @@ const ASSETS = [
   `${BASE}index.html`,
   `${BASE}style.css`,
   `${BASE}script.js`,
+  `${BASE}assets/js/data-provider.js`,
   `${BASE}manifest.json`,
+  `${BASE}pages/box-office.html`,
+  `${BASE}pages/ott.html`,
   OFFLINE_URL
 ];
 

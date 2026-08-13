@@ -15,7 +15,7 @@ function tag(block, name) {
 }
 
 function extractItems(xml) {
-  return [...xml.matchAll(/<item>([\\s\\S]*?)<\\/item>/gi)].map(match => match[1]).map(block => ({
+  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map(match => match[1]).map(block => ({
     title: tag(block, 'title'),
     traffic: tag(block, 'ht:approx_traffic'),
     description: tag(block, 'description'),

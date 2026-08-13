@@ -48,15 +48,16 @@
       const actions = document.createElement('div');
       actions.className = 'trend-actions';
       actions.appendChild(badge(item.relevance));
-      if (item.link) {
-        const link = document.createElement('a');
-        link.href = item.link;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.className = 'secondary-btn';
-        link.textContent = 'Open Trend';
-        actions.appendChild(link);
-      }
+
+      const target = item.openUrl || (Array.isArray(item.newsUrls) && item.newsUrls[0]) || 'https://trends.google.com/trending?geo=IN';
+      const link = document.createElement('a');
+      link.href = target;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'secondary-btn';
+      link.textContent = item.newsUrls?.length ? 'Read Related Story' : 'View on Google Trends';
+      actions.appendChild(link);
+
       card.append(top, meta, description, actions);
       list.appendChild(card);
     });
@@ -67,6 +68,7 @@
     refresh?.setAttribute('aria-busy', 'true');
     try {
       const response = await fetch('../api/trends', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       trends = Array.isArray(data.trends) ? data.trends : [];
       render();

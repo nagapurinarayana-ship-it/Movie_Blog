@@ -1,8 +1,6 @@
 export async function onRequestGet(context) {
   const apiKey = context.env.TMDB_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'TMDB provider not configured', code: 'TMDB_API_KEY_MISSING' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
-  }
+  if (!apiKey) return new Response(JSON.stringify({ error: 'TMDB provider not configured', code: 'TMDB_API_KEY_MISSING' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
 
   const url = new URL(context.request.url);
   const mode = url.searchParams.get('mode') || 'popular';
@@ -21,17 +19,19 @@ export async function onRequestGet(context) {
     const id = (url.searchParams.get('id') || '').trim();
     if (!/^\d+$/.test(id)) return new Response(JSON.stringify({ error: 'A valid TMDB movie id is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     endpoint = `/movie/${id}`; params.set('append_to_response', 'credits,videos,release_dates,watch/providers');
-  } else if (mode === 'trending') {
-    endpoint = '/trending/movie/week';
-  } else if (mode === 'now_playing') {
-    endpoint = '/movie/now_playing'; params.set('page', String(page)); params.set('region', region);
-  } else if (mode === 'upcoming') {
-    endpoint = '/movie/upcoming'; params.set('page', String(page)); params.set('region', region);
-  } else if (mode === 'top_rated') {
-    endpoint = '/movie/top_rated'; params.set('page', String(page)); params.set('region', region);
-  } else {
-    endpoint = '/movie/popular'; params.set('page', String(page)); params.set('region', region);
-  }
+  } else if (mode === 'person') {
+    const id = (url.searchParams.get('id') || '').trim();
+    if (!/^\d+$/.test(id)) return new Response(JSON.stringify({ error: 'A valid TMDB person id is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    endpoint = `/person/${id}`; params.set('append_to_response', 'combined_credits,images');
+  } else if (mode === 'person_search') {
+    const query = (url.searchParams.get('query') || '').trim();
+    if (!query || query.length > 100) return new Response(JSON.stringify({ error: 'A valid person search query is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    endpoint = '/search/person'; params.set('query', query); params.set('page', String(page)); params.set('include_adult', 'false');
+  } else if (mode === 'trending') endpoint = '/trending/movie/week';
+  else if (mode === 'now_playing') { endpoint = '/movie/now_playing'; params.set('page', String(page)); params.set('region', region); }
+  else if (mode === 'upcoming') { endpoint = '/movie/upcoming'; params.set('page', String(page)); params.set('region', region); }
+  else if (mode === 'top_rated') { endpoint = '/movie/top_rated'; params.set('page', String(page)); params.set('region', region); }
+  else { endpoint = '/movie/popular'; params.set('page', String(page)); params.set('region', region); }
 
   try {
     const response = await fetch(`${base}${endpoint}?${params.toString()}`, { headers: { Accept: 'application/json' } });

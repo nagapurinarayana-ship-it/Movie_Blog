@@ -1,11 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Movie Details — MovieBlog</title>
   <meta name="description" content="Movie details, cast, crew, box office, OTT and related information on MovieBlog.">
   <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/movie.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Movie Details — MovieBlog">
+  <meta property="og:description" content="Movie details, cast, crew, box office, OTT and related information on MovieBlog.">
+  <meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/movie.html">
+  <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -19,6 +23,7 @@
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
   const base = '../data/';
+  const publicUrl = new URL(location.href).href;
 
   function text(tag, value, className) { const node=document.createElement(tag); node.textContent=value||''; if(className)node.className=className; return node; }
   function linkTo(label, url) { const a=document.createElement('a'); a.className='entity-link'; a.href=url; a.textContent=label; return a; }
@@ -30,10 +35,18 @@
   async function getMovies(){
     try{const r=await fetch(base+'movies.json',{cache:'no-store'});if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)return d.map(normalize);}}catch(_){}
     const endpoints=['https://api.sampleapis.com/movies/action','https://api.sampleapis.com/movies/drama','https://api.sampleapis.com/movies/comedy'];
-    const results=await Promise.allSettled(endpoints.map(u=>fetch(u)));const movies=[];for(const result of results){if(result.status!=='fulfilled'||!result.value.ok)continue;try{const d=await result.value.json();if(Array.isArray(d))movies.push(...d.map(normalize));}catch(_){}}
+    const results=await Promise.allSettled(endpoints.map(u=>fetch(u)));const movies=[];for(const result of results){if(result.status!=='fulfilled'||!result.value.ok)continue;try{const d=await result.value.json();if(Array.isArray(d))movies.push(...d.map(normalize));}catch(_) {}}
     return movies;
   }
   function renderEmptyData(label, message){ const p=text('p',message,'muted'); const s=section(label); s.appendChild(p); return s; }
+  function setMeta(movie, description) {
+    const canonical = new URL(`./movie.html?id=${encodeURIComponent(movie.id)}`, location.href).href;
+    document.querySelector('link[rel="canonical"]').setAttribute('href', canonical);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', canonical);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', `${movie.title} — MovieBlog`);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', description);
+    document.querySelector('meta[name="twitter:card"]').setAttribute('content','summary');
+  }
 
   async function render(){
     if(!id){root.textContent='Missing movie id.';return;}
@@ -50,6 +63,7 @@
       document.title=`${movie.title} — MovieBlog`;
       const description=(movie.overview||`Find ${movie.title} movie details, cast and release information on MovieBlog.`).slice(0,155);
       document.querySelector('meta[name="description"]').setAttribute('content',description);
+      setMeta(movie, description);
 
       const article=document.createElement('article');article.className='card detail-card';
       const posterWrap=document.createElement('div');posterWrap.className='poster-wrap';
@@ -72,7 +86,7 @@
       const back=document.createElement('a');back.className='secondary-btn';back.href='../pages/search.html';back.textContent='← Back to search';body.appendChild(back);
       article.append(posterWrap,body);root.replaceChildren(article);
 
-      const schema={'@context':'https://schema.org','@type':'Movie',name:movie.title,description:movie.overview||undefined,image:movie.poster||undefined,dateCreated:movie.releaseDate||undefined};
+      const schema={'@context':'https://schema.org','@type':'Movie','@id':new URL(`./movie.html?id=${encodeURIComponent(movie.id)}#movie`, location.href).href,'url':new URL(`./movie.html?id=${encodeURIComponent(movie.id)}`, location.href).href,name:movie.title,description:movie.overview||undefined,image:movie.poster||undefined,dateCreated:movie.releaseDate||undefined};
       const schemaScript=document.createElement('script');schemaScript.type='application/ld+json';schemaScript.textContent=JSON.stringify(schema);document.head.appendChild(schemaScript);
     }catch(error){root.textContent='Movie details could not be loaded. Please try again.';console.error(error);}
   }

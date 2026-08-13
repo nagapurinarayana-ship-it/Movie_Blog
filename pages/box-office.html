@@ -1,49 +1,9 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Box Office — MovieBlog</title>
-  <meta name="description" content="MovieBlog box-office hub for reported and estimated movie collections. Figures are shown only when approved data is available.">
-  <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/box-office">
-  <link rel="stylesheet" href="../style.css">
-</head>
-<body>
-<header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header>
-<main class="container section">
-  <p class="eyebrow">MOVIE DATA</p>
-  <h1>Box Office</h1>
-  <p class="hero-copy">A structured home for India, overseas and worldwide collections. MovieBlog will show a figure only when it has a recorded source and status.</p>
-  <div id="boxOffice" class="intro-grid" aria-live="polite"></div>
-</main>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Box Office — MovieBlog</title><meta name="description" content="MovieBlog box-office and theatrical movie hub with current TMDB movie data and clearly separated reported collection figures."><link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/box-office"><link rel="stylesheet" href="../style.css"></head>
+<body><header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header>
+<main class="container section"><p class="eyebrow">MOVIE DATA</p><h1>Box Office &amp; Theatrical Movies</h1><p class="hero-copy">Browse current theatrical movies, ratings and release dates. Reported collection figures are shown only when MovieBlog has an approved source; TMDB data below is not presented as box-office revenue.</p><p id="status" class="meta">Loading current theatrical movies…</p><section id="boxOffice" class="movies" aria-live="polite"></section></main>
 <footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
 <script>
-(async () => {
-  const root = document.getElementById('boxOffice');
-  try {
-    const r = await fetch('../data/box-office.json', { cache: 'no-store' });
-    const data = await r.json();
-    const movies = data.movies || {};
-    const ids = Object.keys(movies);
-    if (!ids.length) {
-      root.innerHTML = '<article class="feature-panel"><span class="panel-icon">📊</span><div><h2>Tracking is ready</h2><p>Box-office figures will appear here after approved data is added. No numbers are fabricated.</p></div></article>';
-      return;
-    }
-    ids.forEach(id => {
-      const item = movies[id];
-      const card = document.createElement('article');
-      card.className = 'feature-panel';
-      const body = document.createElement('div');
-      body.appendChild(Object.assign(document.createElement('h2'), { textContent: item.title || id }));
-      body.appendChild(Object.assign(document.createElement('p'), { textContent: `India Net: ${item.indiaNet || '—'} • Worldwide: ${item.worldwide || '—'} • Verdict: ${item.verdict || '—'}` }));
-      card.appendChild(Object.assign(document.createElement('span'), { className: 'panel-icon', textContent: '🎟️' }));
-      card.appendChild(body);
-      root.appendChild(card);
-    });
-  } catch (_) {
-    root.textContent = 'Box-office data could not be loaded.';
-  }
-})();
-</script>
-</body>
-</html>
+(async()=>{const root=document.getElementById('boxOffice'),status=document.getElementById('status'),IMAGE_BASE='https://image.tmdb.org/t/p/w500';try{const r=await fetch('../api/tmdb?mode=now_playing&page=1&region=IN&language=en-US',{cache:'no-store'});const d=await r.json();const movies=Array.isArray(d.results)?d.results:[];root.replaceChildren();movies.slice(0,20).forEach(m=>{const card=document.createElement('article');card.className='card';const img=document.createElement('img');img.className='poster';img.loading='lazy';img.alt=`${m.title} poster`;img.src=m.poster_path?IMAGE_BASE+m.poster_path:'../assets/placeholder.png';const body=document.createElement('div');body.className='card-body';const h=document.createElement('h2');h.className='title';h.textContent=m.title;const p=document.createElement('p');p.className='meta';p.textContent=`${m.release_date||'Release TBA'} • ⭐ ${m.vote_average||0}`;const o=document.createElement('p');o.className='overview';o.textContent=m.overview||'TMDB movie details available.';const a=document.createElement('a');a.className='secondary-btn';a.href=`./movie?id=${m.id}`;a.textContent='View movie';body.append(h,p,o,a);card.append(img,body);root.appendChild(card);});status.textContent=`${movies.length} current theatrical movie results • TMDB data`;}catch(_){status.textContent='The current movie data could not be loaded.';root.innerHTML='<article class="feature-panel"><span class="panel-icon">📊</span><div><h2>Try again shortly</h2><p>TMDB is temporarily unavailable.</p></div></article>';}})();
+</script></body></html>

@@ -12,6 +12,18 @@ const requiredRoutes = [
   'pages/director.html'
 ];
 
+const canonicalRoutes = [
+  '/pages/search',
+  '/pages/trending',
+  '/pages/news',
+  '/pages/category',
+  '/pages/box-office',
+  '/pages/ott',
+  '/pages/movie',
+  '/pages/actor',
+  '/pages/director'
+];
+
 const htmlFiles = ['index.html', ...requiredRoutes];
 let failed = false;
 
@@ -36,10 +48,10 @@ for (const path of htmlFiles) {
 }
 
 const sitemap = await readFile('sitemap.xml', 'utf8');
-for (const route of requiredRoutes) {
+for (const route of canonicalRoutes) {
   if (!sitemap.includes(route)) {
     failed = true;
-    console.error(`FAIL sitemap missing ${route}`);
+    console.error(`FAIL sitemap missing canonical route ${route}`);
   }
 }
 

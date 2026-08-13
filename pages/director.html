@@ -6,6 +6,11 @@
   <title>Director — MovieBlog</title>
   <meta name="description" content="Director profile and filmography on MovieBlog.">
   <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/director.html">
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Director — MovieBlog">
+  <meta property="og:description" content="Director profile and filmography on MovieBlog.">
+  <meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/director.html">
+  <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -22,7 +27,14 @@
     const entities=await window.MovieBlogEntities.loadEntities();
     const director=window.MovieBlogEntities.findEntity(entities.directors,id);
     if(!director){root.textContent='Director not found. Entity data will appear as the catalog grows.';return;}
+    const canonical=new URL(`./director.html?id=${encodeURIComponent(director.id)}`,location.href).href;
+    const description=(director.bio||`Learn about ${director.name}, including profile information and filmography on MovieBlog.`).slice(0,155);
     document.title=`${director.name} — MovieBlog`;
+    document.querySelector('meta[name="description"]').setAttribute('content',description);
+    document.querySelector('link[rel="canonical"]').setAttribute('href',canonical);
+    document.querySelector('meta[property="og:title"]').setAttribute('content',`${director.name} — MovieBlog`);
+    document.querySelector('meta[property="og:description"]').setAttribute('content',description);
+    document.querySelector('meta[property="og:url"]').setAttribute('content',canonical);
     const article=document.createElement('article');article.className='card detail-card entity-card';
     const body=document.createElement('div');body.className='card-body';
     body.append(text('p','DIRECTOR','eyebrow'),text('h1',director.name));
@@ -32,7 +44,7 @@
       director.movies.forEach(movie=>{const li=document.createElement('li');const a=document.createElement('a');a.href=`movie.html?id=${encodeURIComponent(movie.id)}`;a.textContent=movie.title||movie.id;li.appendChild(a);list.appendChild(li);});body.appendChild(list);
     }
     article.appendChild(body);root.replaceChildren(article);
-    const schema=document.createElement('script');schema.type='application/ld+json';schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','name':director.name,'jobTitle':'Director','description':director.bio||undefined});document.head.appendChild(schema);
+    const schema=document.createElement('script');schema.type='application/ld+json';schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','@id':`${canonical}#person`,'url':canonical,'name':director.name,'jobTitle':'Director','description':director.bio||undefined});document.head.appendChild(schema);
   }
   document.addEventListener('DOMContentLoaded',render);
 })();

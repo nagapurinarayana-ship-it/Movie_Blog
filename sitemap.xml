@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://movie-blog-bdt.pages.dev/</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/trending.html</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/news.html</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/category.html</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/box-office.html</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/ott.html</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/trending</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/news</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/category</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/box-office</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/ott</loc></url>
 
   <!-- Movie entity URLs -->
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=awarapan-2-2026</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=batwara-1947-2026</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=spider-man-brand-new-day-2026</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=the-odyssey-2026</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=toxic-a-fairy-tale-for-grown-ups-2026</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie.html?id=mirzapur-the-movie-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=awarapan-2-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=batwara-1947-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=spider-man-brand-new-day-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=the-odyssey-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=toxic-a-fairy-tale-for-grown-ups-2026</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/movie?id=mirzapur-the-movie-2026</loc></url>
 
   <!-- Actor entity URLs -->
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=emraan-hashmi</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=disha-patani</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=shabana-azmi</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=sunny-deol</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=preity-zinta</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=karan-deol</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=tom-holland</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=yash</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=pankaj-tripathi</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=ali-fazal</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor.html?id=ravi-kishan</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=emraan-hashmi</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=disha-patani</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=shabana-azmi</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=sunny-deol</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=preity-zinta</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=karan-deol</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=tom-holland</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=yash</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=pankaj-tripathi</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=ali-fazal</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/actor?id=ravi-kishan</loc></url>
 
   <!-- Director entity URLs -->
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/director.html?id=nitin-kakkar</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/director.html?id=destin-daniel-cretton</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/director.html?id=christopher-nolan</loc></url>
-  <url><loc>https://movie-blog-bdt.pages.dev/pages/director.html?id=geetu-mohandas</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/director?id=nitin-kakkar</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/director?id=destin-daniel-cretton</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/director?id=christopher-nolan</loc></url>
+  <url><loc>https://movie-blog-bdt.pages.dev/pages/director?id=geetu-mohandas</loc></url>
 </urlset>

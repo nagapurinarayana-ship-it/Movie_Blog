@@ -34,11 +34,40 @@
 
   window.MovieBlogDataProvider = { normalize, popular, search };
 
-  // Compatibility bridge: the existing fallback loader uses demo endpoints when
-  // the local catalog is empty. Route those calls through MovieBlog's provider.
   const originalFetch = window.fetch.bind(window);
+
+  async function enrichMoviePosters(movies) {
+    return Promise.all(movies.map(async movie => {
+      if (movie.poster || movie.poster_path) return movie;
+      try {
+        const data = await search(movie.title, 1);
+        const match = data.find(item => String(item.title).toLowerCase() === String(movie.title).toLowerCase()) || data[0];
+        if (match?.poster) return { ...movie, poster: match.poster, poster_path: match.poster_path || '' };
+      } catch (_) {}
+      return movie;
+    }));
+  }
+
   window.fetch = async (input, init) => {
     const requestUrl = typeof input === 'string' ? input : input?.url || '';
+
+    if (requestUrl.includes('/data/movies.json')) {
+      const response = await originalFetch(input, init);
+      if (!response.ok) return response;
+      try {
+        const data = await response.clone().json();
+        const movies = Array.isArray(data) ? data : [];
+        const enriched = await enrichMoviePosters(movies);
+        return new Response(JSON.stringify(enriched), {
+          status: response.status,
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+        });
+      } catch (_) {
+        return response;
+      }
+    }
+
+    // Compatibility bridge for the old fallback loader.
     if (requestUrl.includes('api.sampleapis.com/movies/')) {
       try {
         const movies = await popular(1);
@@ -53,6 +82,7 @@
         });
       }
     }
+
     return originalFetch(input, init);
   };
 })();

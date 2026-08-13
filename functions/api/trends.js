@@ -1,4 +1,5 @@
 const RSS_URL = 'https://trends.google.com/trending/rss?geo=IN';
+const TRENDS_WEB_URL = 'https://trends.google.com/trending?geo=IN';
 
 function xmlDecode(value) {
   return value
@@ -28,6 +29,7 @@ function extractItems(xml) {
     link: tag(block, 'link'),
     pubDate: tag(block, 'pubDate'),
     newsTitles: allTags(block, 'ht:news_item_title'),
+    newsUrls: allTags(block, 'ht:news_item_url'),
     newsSources: allTags(block, 'ht:news_item_source')
   })).filter(item => item.title);
 }
@@ -66,7 +68,10 @@ export async function onRequestGet() {
     const trends = extractItems(xml).map(item => ({
       ...item,
       relevance: classify(item.title, item.description, item.newsTitles, item.newsSources),
-      score: score(item)
+      score: score(item),
+      // Never expose the Google Trends RSS endpoint as a clickable destination.
+      // Prefer the first related news article; otherwise use the normal Trends UI.
+      openUrl: item.newsUrls?.[0] || TRENDS_WEB_URL
     })).sort((a, b) => b.score - a.score);
 
     return new Response(JSON.stringify({

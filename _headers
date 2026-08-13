@@ -1,76 +1,36 @@
 /*
-  Cloudflare Pages headers and basic security headers.
-  Adjust the Content-Security-Policy (CSP) after you confirm external image hosts and analytics providers.
+  Basic security headers for all production routes.
 */
-/*
-  NOTE: Cloudflare Pages reads a `_headers` file at the root of the build output. This file will be applied to all routes.
-*/
-/* Default for all paths */
-/*
-  Serve static assets with the following security headers. Tweak CSP to match your exact external hosts.
-*/
-/*
-  Warning: CSP below is a starting point. Restrict sources further as you confirm which external domains you use (images, fonts, analytics, APIs).
-*/
-/*
-  Example content:
-*/
-/*
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
   X-XSS-Protection: 0
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self' https:; img-src 'self' data: https:; connect-src 'self' https://www.omdbapi.com; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; base-uri 'self'; frame-ancestors 'none'
 */
-/
-/* Apply to all routes */
-/* */
+
 /*
-  The following block is the actual file content that will be used by Cloudflare Pages.
+  Cache static assets.
 */
-/*
-  Note: Keep the file simple and test your CSP in staging before tightening in production.
-*/
-/
-/*
-/* */
-/*
-  BEGIN _headers
-*/
-/*
-  Using the simplified GitHub Pages/Cloudflare Pages header syntax
-*/
-/*
-*/
-/*/
-/*
-  For all routes
-*/
-/*
-/*
-*/
-/*
-*/
-/*
-*/
-/
-/* Actual rules: */
-/*
-  The file format is:
-  /path
-    Header-Name: value
-*/
-/
-/
-/ *
-X-Content-Type-Options: nosniff
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), camera=(), microphone=()
-X-Frame-Options: DENY
-X-XSS-Protection: 0
-Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-Content-Security-Policy: default-src 'self' https:; img-src 'self' data: https:; connect-src 'self' https://www.omdbapi.com; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; base-uri 'self'; frame-ancestors 'none'
-*/
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/icons/*
+  Cache-Control: public, max-age=604800
+
+/assets/images/*
+  Cache-Control: public, max-age=604800
+
+/manifest.json
+  Cache-Control: public, max-age=86400
+
+/robots.txt
+  Content-Type: text/plain
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Content-Type: application/xml
+  Cache-Control: public, max-age=3600

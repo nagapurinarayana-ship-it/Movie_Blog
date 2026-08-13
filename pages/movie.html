@@ -4,25 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Movie Details — MovieBlog</title>
-  <meta name="description" content="Movie details, cast, crew, trailers, streaming availability and more on MovieBlog.">
+  <meta name="description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/movie">
   <meta property="og:type" content="video.movie">
+  <meta property="og:site_name" content="MovieBlog">
   <meta property="og:title" content="Movie Details — MovieBlog">
-  <meta property="og:description" content="Movie details, cast, crew, trailers, streaming availability and more on MovieBlog.">
+  <meta property="og:description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
   <meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/movie">
+  <meta property="og:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
+  <meta property="og:image:alt" content="Movie poster on MovieBlog">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Movie Details — MovieBlog">
+  <meta name="twitter:description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
+  <meta name="twitter:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <header class="nav">
   <div class="container nav-inner">
-    <a href="../" class="logo">🎬 MovieBlog</a>
+    <a href="../" class="logo" aria-label="MovieBlog home">🎬 MovieBlog</a>
     <a class="icon-btn" href="../pages/search">Search</a>
   </div>
 </header>
 
 <main class="container section">
-  <div id="movieDetails" aria-live="polite">Loading movie…</div>
+  <nav aria-label="Breadcrumb" class="meta" id="breadcrumbs">
+    <a href="../">Home</a> <span aria-hidden="true">›</span> <a href="../pages/search">Movies</a> <span aria-hidden="true">›</span> <span>Details</span>
+  </nav>
+  <div id="movieDetails" aria-live="polite">Loading movie details…</div>
 </main>
 
 <footer class="site-footer">
@@ -95,6 +105,34 @@
     return hours ? `${hours}h ${mins}m` : `${mins}m`;
   }
 
+  function setMeta(movie) {
+    const canonical = new URL(`./movie?id=${encodeURIComponent(movie.id)}`, location.href).href;
+    const cleanOverview = String(movie.overview || '').replace(/\s+/g, ' ').trim();
+    const description = (cleanOverview || `Find ${movie.title} movie details, cast, trailer, release information and streaming availability on MovieBlog.`).slice(0, 158);
+    const title = `${movie.title} — MovieBlog`;
+    document.title = title;
+    document.querySelector('meta[name="description"]').content = description;
+    document.querySelector('link[rel="canonical"]').href = canonical;
+    document.querySelector('meta[property="og:url"]').content = canonical;
+    document.querySelector('meta[property="og:title"]').content = title;
+    document.querySelector('meta[property="og:description"]').content = description;
+    document.querySelector('meta[name="twitter:title"]').content = title;
+    document.querySelector('meta[name="twitter:description"]').content = description;
+    const image = movie.backdrop_path ? BACKDROP_BASE + movie.backdrop_path : (movie.poster_path ? IMAGE_BASE + movie.poster_path : 'https://movie-blog-bdt.pages.dev/assets/placeholder.png');
+    document.querySelector('meta[property="og:image"]').content = image;
+    document.querySelector('meta[name="twitter:image"]').content = image;
+    document.querySelector('meta[property="og:image:alt"]').content = `${movie.title} movie artwork`;
+
+    const crumb = document.getElementById('breadcrumbs');
+    crumb.replaceChildren(
+      link('Home', '../'),
+      el('span', ' › '),
+      link('Movies', '../pages/search'),
+      el('span', ' › '),
+      el('span', movie.title || 'Movie details')
+    );
+  }
+
   function renderProviders(movie, body) {
     const country = movie['watch/providers']?.results?.IN;
     if (!country) return;
@@ -105,15 +143,11 @@
       }
     }
     if (!providers.length && !country.link) return;
-    const s = section('Where to Watch');
-    const intro = el('p', 'Streaming availability can change by region and over time.', 'muted');
-    s.appendChild(intro);
+    const s = section('Where to Watch in India');
+    s.appendChild(el('p', 'Streaming availability can change by region and over time.', 'muted'));
     if (providers.length) {
       const list = el('div', '', 'entity-list-inline');
-      providers.slice(0, 12).forEach(provider => {
-        const item = el('span', provider.provider_name || 'Streaming service', 'meta');
-        list.appendChild(item);
-      });
+      providers.slice(0, 12).forEach(provider => list.appendChild(el('span', provider.provider_name || 'Streaming service', 'meta')));
       s.appendChild(list);
     }
     if (country.link) s.appendChild(link('View current availability', country.link, 'secondary-btn'));
@@ -126,12 +160,9 @@
       || videos.find(v => v.site === 'YouTube' && v.type === 'Trailer')
       || videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
     if (!trailer?.key) return;
-    const s = section('Trailer');
+    const s = section('Official Trailer');
     const frame = document.createElement('iframe');
-    frame.width = '100%';
-    frame.height = '420';
-    frame.loading = 'lazy';
-    frame.allowFullscreen = true;
+    frame.width = '100%'; frame.height = '420'; frame.loading = 'lazy'; frame.allowFullscreen = true;
     frame.title = `${movie.title || 'Movie'} trailer`;
     frame.src = `https://www.youtube.com/embed/${encodeURIComponent(trailer.key)}`;
     frame.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
@@ -142,48 +173,71 @@
   function renderBoxOffice(movieId, body, data) {
     const record = data?.movies?.[String(movieId)];
     const s = section('Box Office');
-    if (!record) {
-      s.appendChild(el('p', 'Box-office figures will appear here when verified editorial data is available.', 'muted'));
-    } else {
-      [['India Net', record.indiaNet], ['India Gross', record.indiaGross], ['Overseas', record.overseas], ['Worldwide', record.worldwide], ['Verdict', record.verdict]].forEach(([label, value]) => {
-        if (value !== undefined && value !== null && value !== '') s.appendChild(el('p', `${label}: ${value}`, 'meta'));
-      });
-    }
+    if (!record) s.appendChild(el('p', 'Box-office figures will appear here when verified editorial data is available.', 'muted'));
+    else [['India Net', record.indiaNet], ['India Gross', record.indiaGross], ['Overseas', record.overseas], ['Worldwide', record.worldwide], ['Verdict', record.verdict]].forEach(([label, value]) => {
+      if (value !== undefined && value !== null && value !== '') s.appendChild(el('p', `${label}: ${value}`, 'meta'));
+    });
     body.appendChild(s);
   }
 
   function renderOtt(movieId, body, data) {
     const record = data?.movies?.[String(movieId)];
-    const s = section('OTT');
-    if (!record) {
-      s.appendChild(el('p', 'OTT availability will appear after verified release data is added.', 'muted'));
-    } else {
+    const s = section('OTT Release');
+    if (!record) s.appendChild(el('p', 'OTT availability will appear after verified release data is added.', 'muted'));
+    else {
       if (record.platform) s.appendChild(el('p', `Platform: ${record.platform}`, 'meta'));
       if (record.releaseDate) s.appendChild(el('p', `Release date: ${record.releaseDate}`, 'meta'));
     }
     body.appendChild(s);
   }
 
-  function setMeta(movie) {
+  function addStructuredData(movie, director, cast, genres) {
     const canonical = new URL(`./movie?id=${encodeURIComponent(movie.id)}`, location.href).href;
-    const description = (movie.overview || `Find ${movie.title} movie details, cast, trailer, release information and streaming availability on MovieBlog.`).replace(/\s+/g, ' ').slice(0, 155);
-    document.title = `${movie.title} — MovieBlog`;
-    document.querySelector('meta[name="description"]').content = description;
-    document.querySelector('link[rel="canonical"]').href = canonical;
-    document.querySelector('meta[property="og:url"]').content = canonical;
-    document.querySelector('meta[property="og:title"]').content = `${movie.title} — MovieBlog`;
-    document.querySelector('meta[property="og:description"]').content = description;
-    if (movie.backdrop_path) document.querySelector('meta[property="og:image"]')?.setAttribute('content', BACKDROP_BASE + movie.backdrop_path);
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Movie',
+      '@id': `${canonical}#movie`,
+      url: canonical,
+      name: movie.title,
+      description: movie.overview || undefined,
+      image: movie.poster_path ? IMAGE_BASE + movie.poster_path : undefined,
+      dateCreated: movie.release_date || undefined,
+      genre: genres,
+      duration: movie.runtime ? `PT${Number(movie.runtime)}M` : undefined,
+      countryOfOrigin: movie.production_countries?.map(c => ({ '@type': 'Country', name: c.name })) || undefined,
+      aggregateRating: movie.vote_count ? {
+        '@type': 'AggregateRating',
+        ratingValue: Number(movie.vote_average || 0).toFixed(1),
+        ratingCount: Number(movie.vote_count),
+        bestRating: '10',
+        worstRating: '0'
+      } : undefined,
+      director: director ? { '@type': 'Person', name: director.name } : undefined,
+      actor: cast.slice(0, 10).map(person => ({ '@type': 'Person', name: person.name }))
+    };
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('../', location.href).href },
+        { '@type': 'ListItem', position: 2, name: 'Movies', item: new URL('../pages/search', location.href).href },
+        { '@type': 'ListItem', position: 3, name: movie.title, item: canonical }
+      ]
+    };
+    [schema, breadcrumb].forEach(data => {
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(data);
+      document.head.appendChild(script);
+    });
   }
 
   async function render() {
     if (!id || !/^\d+$/.test(id)) {
-      root.textContent = 'A valid movie id is required.';
+      root.replaceChildren(el('h1', 'Movie not found'), el('p', 'A valid movie id is required.', 'muted'), link('← Browse movies', '../pages/search', 'secondary-btn'));
       return;
     }
-
     root.textContent = 'Loading movie details…';
-
     try {
       const [movie, entities, boxOffice, ott] = await Promise.all([
         getTmdbMovie(id),
@@ -191,50 +245,39 @@
         json(`${DATA_BASE}box-office.json`, { movies: {} }),
         json(`${DATA_BASE}ott.json`, { movies: {} })
       ]);
-
       if (!movie || movie.success === false) throw new Error('Movie not found');
       setMeta(movie);
-
       const { director, cast } = peopleFromCredits(movie);
       const genres = genresText(movie);
       const article = document.createElement('article');
       article.className = 'card detail-card';
-
       const posterWrap = el('div', '', 'poster-wrap');
       const poster = document.createElement('img');
-      poster.className = 'poster';
-      poster.loading = 'eager';
-      poster.alt = `${movie.title} poster`;
+      poster.className = 'poster'; poster.loading = 'eager'; poster.alt = `${movie.title} poster`;
       poster.src = movie.poster_path ? IMAGE_BASE + movie.poster_path : '../assets/placeholder.png';
+      poster.onerror = () => { poster.src = '../assets/placeholder.png'; };
       posterWrap.appendChild(poster);
 
       const body = el('div', '', 'card-body');
       body.appendChild(el('p', 'MOVIE', 'eyebrow'));
       body.appendChild(el('h1', movie.title || 'Untitled'));
-
       const metaParts = [];
       if (movie.release_date) metaParts.push(movie.release_date.slice(0, 4));
       metaParts.push(formatRuntime(movie.runtime));
       if (movie.vote_average) metaParts.push(`⭐ ${Number(movie.vote_average).toFixed(1)}`);
       if (movie.vote_count) metaParts.push(`${Number(movie.vote_count).toLocaleString()} votes`);
       body.appendChild(el('p', metaParts.join(' • '), 'meta'));
-
-      if (genres.length) {
-        const genreLine = el('p', genres.join(' • '), 'meta');
-        body.appendChild(genreLine);
-      }
-
+      if (genres.length) body.appendChild(el('p', genres.join(' • '), 'meta'));
       if (movie.tagline) body.appendChild(el('p', `“${movie.tagline}”`, 'eyebrow'));
       body.appendChild(el('p', movie.overview || 'Movie information is not available yet.', 'overview'));
 
       const credits = section('Cast & Crew');
       if (director) {
-        const directorRow = el('p', '', 'meta');
-        directorRow.appendChild(document.createTextNode('Director: '));
-        directorRow.appendChild(link(director.name, `director?id=${encodeURIComponent(window.MovieBlogEntities?.slugify?.(director.name) || director.id)}`));
-        credits.appendChild(directorRow);
+        const row = el('p', '', 'meta');
+        row.appendChild(document.createTextNode('Director: '));
+        row.appendChild(link(director.name, `director?id=${encodeURIComponent(window.MovieBlogEntities?.slugify?.(director.name) || director.id)}`));
+        credits.appendChild(row);
       }
-
       if (cast.length) {
         const castList = el('div', '', 'entity-list-inline');
         cast.slice(0, 12).forEach(person => {
@@ -246,45 +289,20 @@
       }
       if (!director && !cast.length) credits.appendChild(el('p', 'Cast and crew information is not available.', 'muted'));
       body.appendChild(credits);
-
       renderTrailer(movie, body);
       renderProviders(movie, body);
       renderBoxOffice(movie.id, body, boxOffice);
       renderOtt(movie.id, body, ott);
-
-      const back = link('← Back to search', '../pages/search', 'secondary-btn');
-      body.appendChild(back);
+      body.appendChild(link('← Browse more movies', '../pages/search', 'secondary-btn'));
       article.append(posterWrap, body);
       root.replaceChildren(article);
-
-      const canonical = new URL(`./movie?id=${encodeURIComponent(movie.id)}`, location.href).href;
-      const schema = {
-        '@context': 'https://schema.org',
-        '@type': 'Movie',
-        '@id': `${canonical}#movie`,
-        url: canonical,
-        name: movie.title,
-        description: movie.overview || undefined,
-        image: movie.poster_path ? IMAGE_BASE + movie.poster_path : undefined,
-        dateCreated: movie.release_date || undefined,
-        aggregateRating: movie.vote_count ? {
-          '@type': 'AggregateRating',
-          ratingValue: Number(movie.vote_average || 0).toFixed(1),
-          ratingCount: Number(movie.vote_count)
-        } : undefined,
-        director: director ? { '@type': 'Person', name: director.name } : undefined,
-        actor: cast.slice(0, 10).map(person => ({ '@type': 'Person', name: person.name }))
-      };
-      const schemaScript = document.createElement('script');
-      schemaScript.type = 'application/ld+json';
-      schemaScript.textContent = JSON.stringify(schema);
-      document.head.appendChild(schemaScript);
+      addStructuredData(movie, director, cast, genres);
     } catch (error) {
       console.error(error);
       root.replaceChildren(
         el('h1', 'Movie details unavailable'),
         el('p', 'We could not load this movie from the live movie database. Please try again shortly.', 'muted'),
-        link('← Back to MovieBlog', '../', 'secondary-btn')
+        link('← Browse movies', '../pages/search', 'secondary-btn')
       );
     }
   }

@@ -6,6 +6,11 @@
   <title>Actor — MovieBlog</title>
   <meta name="description" content="Actor profile and filmography on MovieBlog.">
   <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/actor.html">
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Actor — MovieBlog">
+  <meta property="og:description" content="Actor profile and filmography on MovieBlog.">
+  <meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/actor.html">
+  <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -22,7 +27,14 @@
     const entities = await window.MovieBlogEntities.loadEntities();
     const actor = window.MovieBlogEntities.findEntity(entities.actors, id);
     if(!actor){ root.textContent='Actor not found. Entity data will appear as the catalog grows.'; return; }
+    const canonical = new URL(`./actor.html?id=${encodeURIComponent(actor.id)}`, location.href).href;
+    const description = (actor.bio || `Learn about ${actor.name}, including profile information and filmography on MovieBlog.`).slice(0,155);
     document.title = `${actor.name} — MovieBlog`;
+    document.querySelector('meta[name="description"]').setAttribute('content', description);
+    document.querySelector('link[rel="canonical"]').setAttribute('href', canonical);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', `${actor.name} — MovieBlog`);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', description);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', canonical);
     const article=document.createElement('article'); article.className='card detail-card entity-card';
     const body=document.createElement('div'); body.className='card-body';
     body.append(text('p','ACTOR','eyebrow'), text('h1',actor.name));
@@ -34,7 +46,7 @@
       body.appendChild(list);
     }
     article.appendChild(body); root.replaceChildren(article);
-    const schema=document.createElement('script'); schema.type='application/ld+json'; schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','name':actor.name,'description':actor.bio||undefined}); document.head.appendChild(schema);
+    const schema=document.createElement('script'); schema.type='application/ld+json'; schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','@id':`${canonical}#person`,'url':canonical,'name':actor.name,'description':actor.bio||undefined}); document.head.appendChild(schema);
   }
   document.addEventListener('DOMContentLoaded', render);
 })();

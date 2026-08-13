@@ -1,4 +1,52 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Actor — MovieBlog</title><meta name="description" content="Actor profile and filmography on MovieBlog."><link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/actor"><meta property="og:type" content="profile"><meta property="og:title" content="Actor — MovieBlog"><meta property="og:description" content="Actor profile and filmography on MovieBlog."><meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/actor"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="../style.css"></head><body><header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header><main class="container section"><div id="entityRoot" aria-live="polite">Loading actor…</div></main><footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer><script src="../assets/js/entities.js" defer></script><script>
-(()=>{const root=document.getElementById('entityRoot');function text(tag,value,cls){const n=document.createElement(tag);n.textContent=value||'';if(cls)n.className=cls;return n;}async function render(){const id=new URLSearchParams(location.search).get('id');const entities=await window.MovieBlogEntities.loadEntities();const actor=window.MovieBlogEntities.findEntity(entities.actors,id);if(!actor){root.textContent='Actor not found. Entity data will appear as the catalog grows.';return;}const canonical=new URL(`./actor?id=${encodeURIComponent(actor.id)}`,location.href).href;const description=(actor.bio||`Learn about ${actor.name}, including profile information and filmography on MovieBlog.`).slice(0,155);document.title=`${actor.name} — MovieBlog`;document.querySelector('meta[name="description"]').setAttribute('content',description);document.querySelector('link[rel="canonical"]').setAttribute('href',canonical);document.querySelector('meta[property="og:title"]').setAttribute('content',`${actor.name} — MovieBlog`);document.querySelector('meta[property="og:description"]').setAttribute('content',description);document.querySelector('meta[property="og:url"]').setAttribute('content',canonical);const article=document.createElement('article');article.className='card detail-card entity-card';const body=document.createElement('div');body.className='card-body';body.append(text('p','ACTOR','eyebrow'),text('h1',actor.name),text('p',actor.bio||'Actor profile information.','overview'));if(Array.isArray(actor.movies)&&actor.movies.length){body.append(text('h2','Filmography'));const list=document.createElement('ul');list.className='entity-list';actor.movies.forEach(movie=>{const li=document.createElement('li');const a=document.createElement('a');a.href=`movie?id=${encodeURIComponent(movie.id)}`;a.textContent=movie.title||movie.id;li.appendChild(a);list.appendChild(li);});body.appendChild(list);}article.appendChild(body);root.replaceChildren(article);const schema=document.createElement('script');schema.type='application/ld+json';schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','@id':`${canonical}#person`,'url':canonical,'name':actor.name,'description':actor.bio||undefined});document.head.appendChild(schema);}document.addEventListener('DOMContentLoaded',render);})();
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actor — MovieBlog</title><meta name="description" content="Actor profile, biography and filmography on MovieBlog.">
+<link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/actor">
+<meta property="og:type" content="profile"><meta property="og:title" content="Actor — MovieBlog"><meta property="og:description" content="Actor profile, biography and filmography on MovieBlog."><meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/actor"><meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body><header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header>
+<main class="container section"><nav class="breadcrumbs"><a href="../">Home</a><span>›</span><span>Actor</span></nav><div id="entityRoot" aria-live="polite">Loading actor…</div></main>
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
+<script>
+(()=>{
+const root=document.getElementById('entityRoot');
+const IMAGE='https://image.tmdb.org/t/p/w342';
+const text=(tag,value,cls)=>{const n=document.createElement(tag);n.textContent=value||'';if(cls)n.className=cls;return n;};
+const link=(label,href,cls='entity-link')=>{const a=document.createElement('a');a.href=href;a.textContent=label;a.className=cls;return a;};
+async function get(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
+async function render(){
+ const id=new URLSearchParams(location.search).get('id');
+ if(!id){root.replaceChildren(text('h1','Actor not specified'),text('p','Open an actor profile from a movie page.','muted'));return;}
+ try{
+  let person;
+  if(/^\d+$/.test(id)) person=await get(`../api/tmdb?mode=person&id=${encodeURIComponent(id)}&language=en-US`);
+  else {const search=await get(`../api/tmdb?mode=person_search&query=${encodeURIComponent(id)}&language=en-US&page=1`);person=search.results?.[0];}
+  if(!person?.id) throw new Error('Actor not found');
+  const canonical=new URL(`./actor?id=${person.id}`,location.href).href;
+  const description=(person.biography||`Learn about ${person.name}, including biography, acting credits and filmography on MovieBlog.`).replace(/\s+/g,' ').slice(0,155);
+  document.title=`${person.name} — Actor — MovieBlog`;
+  document.querySelector('meta[name="description"]').content=description;
+  document.querySelector('link[rel="canonical"]').href=canonical;
+  document.querySelector('meta[property="og:title"]').content=`${person.name} — Actor — MovieBlog`;
+  document.querySelector('meta[property="og:description"]').content=description;
+  document.querySelector('meta[property="og:url"]').content=canonical;
+  const article=document.createElement('article');article.className='card detail-card entity-card';
+  const body=document.createElement('div');body.className='card-body';
+  body.append(text('p','ACTOR','eyebrow'),text('h1',person.name));
+  if(person.profile_path){const img=document.createElement('img');img.src=IMAGE+person.profile_path;img.alt=`${person.name} profile photo`;img.loading='eager';img.className='poster';body.appendChild(img);}
+  const facts=[];if(person.birthday)facts.push(`Born: ${person.birthday}`);if(person.place_of_birth)facts.push(`From: ${person.place_of_birth}`);if(person.known_for_department)facts.push(`Known for: ${person.known_for_department}`);if(facts.length)body.append(text('p',facts.join(' • '),'meta'));
+  body.append(text('p',person.biography||'Biography information is not available yet.','overview'));
+  const credits=(person.combined_credits?.cast||[]).filter(m=>m.media_type==='movie'&&m.id).sort((a,b)=>(b.release_date||'').localeCompare(a.release_date||''));
+  const unique=[];const seen=new Set();for(const m of credits){if(!seen.has(m.id)){seen.add(m.id);unique.push(m);}}
+  body.append(text('h2','Filmography'));
+  if(unique.length){const grid=document.createElement('div');grid.className='entity-list';unique.slice(0,40).forEach(m=>{const wrap=document.createElement('div');wrap.className='entity-item';wrap.append(link(m.title||m.original_title||'Movie',`../pages/movie?id=${m.id}`));if(m.release_date)wrap.append(text('span',` • ${m.release_date.slice(0,4)}`,'meta'));grid.appendChild(wrap);});body.appendChild(grid);}else body.append(text('p','No movie credits are available.','muted'));
+  body.append(link('← Back to MovieBlog','../','secondary-btn'));article.appendChild(body);root.replaceChildren(article);
+  const schema=document.createElement('script');schema.type='application/ld+json';schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','@id':`${canonical}#person`,'url':canonical,'name':person.name,'description':person.biography||undefined,'image':person.profile_path?IMAGE+person.profile_path:undefined});document.head.appendChild(schema);
+ }catch(e){root.replaceChildren(text('h1','Actor unavailable'),text('p','We could not load this person from TMDB. Please try again shortly.','muted'),link('← Back to MovieBlog','../','secondary-btn'));}
+}
+document.addEventListener('DOMContentLoaded',render);
+})();
 </script></body></html>

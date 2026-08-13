@@ -32,7 +32,7 @@
   try { favorites = new Set(JSON.parse(localStorage.getItem(LS_FAV) || '[]')); } catch (_) {}
 
   function saveFavs() { localStorage.setItem(LS_FAV, JSON.stringify([...favorites])); }
-  function movieUrl(id) { return `./pages/movie.html?id=${encodeURIComponent(id)}`; }
+  function movieUrl(id) { return `./pages/movie?id=${encodeURIComponent(id)}`; }
   function formatMeta(m) { return `${m.releaseDate || 'Release TBA'} • ${m.runtime || 0} min • ⭐ ${m.rating || 0}`; }
 
   function createCard(movie) {
@@ -303,7 +303,7 @@
   window.addEventListener('scroll', () => { if (scrollTop) scrollTop.style.display = window.scrollY > 500 ? 'block' : 'none'; }, { passive: true });
   scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  favBtn?.addEventListener('click', event => { event.preventDefault(); window.location.href = './pages/search.html?fav=1'; });
+  favBtn?.addEventListener('click', event => { event.preventDefault(); window.location.href = './pages/search?fav=1'; });
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
   document.addEventListener('DOMContentLoaded', load);

@@ -4,111 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Movie Details — MovieBlog</title>
-  <meta name="description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
+  <meta name="description" content="Movie details, cast, crew, release information and streaming availability on MovieBlog.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/movie">
   <meta property="og:type" content="video.movie">
   <meta property="og:site_name" content="MovieBlog">
   <meta property="og:title" content="Movie Details — MovieBlog">
-  <meta property="og:description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
+  <meta property="og:description" content="Movie details, cast, crew, release information and streaming availability on MovieBlog.">
   <meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/movie">
   <meta property="og:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
   <meta property="og:image:alt" content="Movie poster on MovieBlog">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Movie Details — MovieBlog">
-  <meta name="twitter:description" content="Movie details, cast, crew, trailers, release information and streaming availability on MovieBlog.">
+  <meta name="twitter:description" content="Movie details, cast, release information and streaming availability on MovieBlog.">
   <meta name="twitter:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<header class="nav">
-  <div class="container nav-inner">
-    <a href="../" class="logo" aria-label="MovieBlog home">🎬 MovieBlog</a>
-    <a class="icon-btn" href="../pages/search">Search</a>
-  </div>
-</header>
-
+<header class="nav"><div class="container nav-inner"><a href="../" class="logo" aria-label="MovieBlog home">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header>
 <main class="container section">
-  <nav aria-label="Breadcrumb" class="meta" id="breadcrumbs">
-    <a href="../">Home</a> <span aria-hidden="true">›</span> <a href="../pages/search">Movies</a> <span aria-hidden="true">›</span> <span>Details</span>
-  </nav>
-  <div id="movieDetails" aria-live="polite">Loading movie details…</div>
+  <nav aria-label="Breadcrumb" class="meta" id="breadcrumbs"><a href="../">Home</a> <span>›</span> <a href="../pages/search">Movies</a> <span>›</span> <span>Details</span></nav>
+  <div id="movieDetails" aria-live="polite">
+    <h1>Movie Details</h1>
+    <p class="hero-copy">Explore movie release information, cast, crew, genres and related titles on MovieBlog.</p>
+    <noscript>
+      <section class="card"><div class="card-body">
+        <h2>Featured Movies</h2>
+        <p><a href="./movie?id=awarapan-2-2026">Awarapan 2</a> · <a href="./movie?id=batwara-1947-2026">Batwara 1947</a> · <a href="./movie?id=spider-man-brand-new-day-2026">Spider-Man: Brand New Day</a> · <a href="./movie?id=the-odyssey-2026">The Odyssey</a> · <a href="./movie?id=toxic-a-fairy-tale-for-grown-ups-2026">Toxic: A Fairy Tale for Grown-Ups</a> · <a href="./movie?id=mirzapur-the-movie-2026">Mirzapur - The Movie</a></p>
+      </div></section>
+    </noscript>
+  </div>
 </main>
-
-<footer class="site-footer">
-  <div class="container"><a href="../">← Back to MovieBlog</a></div>
-</footer>
-
+<footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer>
 <script src="../assets/js/entities.js" defer></script>
 <script>
 (() => {
   const root = document.getElementById('movieDetails');
-  const id = new URLSearchParams(location.search).get('id');
+  const requestedId = new URLSearchParams(location.search).get('id');
   const DATA_BASE = '../data/';
   const IMAGE_BASE = 'https://image.tmdb.org/t/p/w780';
   const BACKDROP_BASE = 'https://image.tmdb.org/t/p/w1280';
-
-  const el = (tag, value = '', className = '') => {
-    const node = document.createElement(tag);
-    if (value !== undefined && value !== null) node.textContent = value;
-    if (className) node.className = className;
-    return node;
-  };
-
-  const section = (title) => {
-    const node = document.createElement('section');
-    node.className = 'detail-section';
-    node.appendChild(el('h2', title));
-    return node;
-  };
-
-  const link = (label, href, className = 'entity-link') => {
-    const a = document.createElement('a');
-    a.href = href;
-    a.textContent = label;
-    a.className = className;
-    return a;
-  };
-
-  async function json(url, fallback) {
-    try {
-      const response = await fetch(url, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
-    } catch (_) {
-      return fallback;
-    }
-  }
-
-  async function getTmdbMovie(movieId) {
-    const response = await fetch(`../api/tmdb?mode=movie&id=${encodeURIComponent(movieId)}&language=en-US&region=IN`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`TMDB returned ${response.status}`);
-    return response.json();
-  }
-
-  function peopleFromCredits(movie) {
-    const crew = Array.isArray(movie.credits?.crew) ? movie.credits.crew : [];
-    const cast = Array.isArray(movie.credits?.cast) ? movie.credits.cast : [];
-    const director = crew.find(person => person.job === 'Director');
-    return { director, cast };
-  }
-
-  function genresText(movie) {
-    return Array.isArray(movie.genres) ? movie.genres.map(g => g.name).filter(Boolean) : [];
-  }
-
-  function formatRuntime(minutes) {
-    const value = Number(minutes || 0);
-    if (!value) return 'Runtime TBA';
-    const hours = Math.floor(value / 60);
-    const mins = value % 60;
-    return hours ? `${hours}h ${mins}m` : `${mins}m`;
-  }
-
+  const PLACEHOLDER = '../assets/placeholder.png';
+  const el = (tag, value = '', className = '') => { const n = document.createElement(tag); if (value !== null && value !== undefined) n.textContent = value; if (className) n.className = className; return n; };
+  const section = title => { const n = document.createElement('section'); n.className = 'detail-section'; n.appendChild(el('h2', title)); return n; };
+  const link = (label, href, className = 'entity-link') => { const a = document.createElement('a'); a.href = href; a.textContent = label; a.className = className; return a; };
+  async function json(url, fallback) { try { const r = await fetch(url, {cache:'no-store'}); if (!r.ok) throw Error(r.status); return await r.json(); } catch (_) { return fallback; } }
+  function slug(value) { return String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+  function normalizeLocal(m) { return { ...m, id:m.id, title:m.title || 'Untitled', overview:m.overview || '', release_date:m.releaseDate || '', vote_average:Number(m.rating || 0), vote_count:0, runtime:Number(m.runtime || 0), genres:(m.genres || []).map(g => typeof g === 'string' ? {name:g} : g), cast:(m.cast || []).map(name => ({name})), local:true, directorName:m.director || '' }; }
+  function localImage(title) { return `https://placehold.co/780x1170?text=${encodeURIComponent(title || 'Movie')}`; }
+  function formatRuntime(v) { v=Number(v||0); if(!v) return 'Runtime TBA'; const h=Math.floor(v/60), m=v%60; return h ? `${h}h ${m}m` : `${m}m`; }
+  function localById(list, id) { return list.find(m => String(m.id) === String(id)) || null; }
   function setMeta(movie) {
     const canonical = new URL(`./movie?id=${encodeURIComponent(movie.id)}`, location.href).href;
-    const cleanOverview = String(movie.overview || '').replace(/\s+/g, ' ').trim();
-    const description = (cleanOverview || `Find ${movie.title} movie details, cast, trailer, release information and streaming availability on MovieBlog.`).slice(0, 158);
+    const description = String(movie.overview || `Find ${movie.title} movie details, cast, crew, release information and related movies on MovieBlog.`).replace(/\s+/g,' ').slice(0,158);
     const title = `${movie.title} — MovieBlog`;
     document.title = title;
     document.querySelector('meta[name="description"]').content = description;
@@ -118,196 +66,61 @@
     document.querySelector('meta[property="og:description"]').content = description;
     document.querySelector('meta[name="twitter:title"]').content = title;
     document.querySelector('meta[name="twitter:description"]').content = description;
-    const image = movie.backdrop_path ? BACKDROP_BASE + movie.backdrop_path : (movie.poster_path ? IMAGE_BASE + movie.poster_path : 'https://movie-blog-bdt.pages.dev/assets/placeholder.png');
+    const image = movie.backdrop_path ? BACKDROP_BASE + movie.backdrop_path : movie.poster_path ? IMAGE_BASE + movie.poster_path : localImage(movie.title);
     document.querySelector('meta[property="og:image"]').content = image;
     document.querySelector('meta[name="twitter:image"]').content = image;
-    document.querySelector('meta[property="og:image:alt"]').content = `${movie.title} movie artwork`;
-
-    const crumb = document.getElementById('breadcrumbs');
-    crumb.replaceChildren(
-      link('Home', '../'),
-      el('span', ' › '),
-      link('Movies', '../pages/search'),
-      el('span', ' › '),
-      el('span', movie.title || 'Movie details')
-    );
+    document.querySelector('meta[property="og:image:alt"]').content = `${movie.title} poster`;
+    document.getElementById('breadcrumbs').replaceChildren(link('Home','../'),el('span',' › '),link('Movies','../pages/search'),el('span',' › '),el('span',movie.title));
   }
-
-  function renderProviders(movie, body) {
-    const country = movie['watch/providers']?.results?.IN;
-    if (!country) return;
-    const providers = [];
-    for (const key of ['flatrate', 'free', 'ads', 'rent', 'buy']) {
-      for (const provider of country[key] || []) {
-        if (!providers.some(item => item.provider_id === provider.provider_id)) providers.push(provider);
-      }
-    }
-    if (!providers.length && !country.link) return;
-    const s = section('Where to Watch in India');
-    s.appendChild(el('p', 'Streaming availability can change by region and over time.', 'muted'));
-    if (providers.length) {
-      const list = el('div', '', 'entity-list-inline');
-      providers.slice(0, 12).forEach(provider => list.appendChild(el('span', provider.provider_name || 'Streaming service', 'meta')));
-      s.appendChild(list);
-    }
-    if (country.link) s.appendChild(link('View current availability', country.link, 'secondary-btn'));
-    body.appendChild(s);
-  }
-
-  function renderTrailer(movie, body) {
-    const videos = Array.isArray(movie.videos?.results) ? movie.videos.results : [];
-    const trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer' && v.official)
-      || videos.find(v => v.site === 'YouTube' && v.type === 'Trailer')
-      || videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
-    if (!trailer?.key) return;
-    const s = section('Official Trailer');
-    const frame = document.createElement('iframe');
-    frame.width = '100%'; frame.height = '420'; frame.loading = 'lazy'; frame.allowFullscreen = true;
-    frame.title = `${movie.title || 'Movie'} trailer`;
-    frame.src = `https://www.youtube.com/embed/${encodeURIComponent(trailer.key)}`;
-    frame.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-    s.appendChild(frame);
-    body.appendChild(s);
-  }
-
-  function renderBoxOffice(movieId, body, data) {
-    const record = data?.movies?.[String(movieId)];
-    const s = section('Box Office');
-    if (!record) s.appendChild(el('p', 'Box-office figures will appear here when verified editorial data is available.', 'muted'));
-    else [['India Net', record.indiaNet], ['India Gross', record.indiaGross], ['Overseas', record.overseas], ['Worldwide', record.worldwide], ['Verdict', record.verdict]].forEach(([label, value]) => {
-      if (value !== undefined && value !== null && value !== '') s.appendChild(el('p', `${label}: ${value}`, 'meta'));
-    });
-    body.appendChild(s);
-  }
-
-  function renderOtt(movieId, body, data) {
-    const record = data?.movies?.[String(movieId)];
-    const s = section('OTT Release');
-    if (!record) s.appendChild(el('p', 'OTT availability will appear after verified release data is added.', 'muted'));
-    else {
-      if (record.platform) s.appendChild(el('p', `Platform: ${record.platform}`, 'meta'));
-      if (record.releaseDate) s.appendChild(el('p', `Release date: ${record.releaseDate}`, 'meta'));
-    }
-    body.appendChild(s);
-  }
-
-  function addStructuredData(movie, director, cast, genres) {
+  function addSchema(movie, director, cast, genres) {
     const canonical = new URL(`./movie?id=${encodeURIComponent(movie.id)}`, location.href).href;
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'Movie',
-      '@id': `${canonical}#movie`,
-      url: canonical,
-      name: movie.title,
-      description: movie.overview || undefined,
-      image: movie.poster_path ? IMAGE_BASE + movie.poster_path : undefined,
-      dateCreated: movie.release_date || undefined,
-      genre: genres,
-      duration: movie.runtime ? `PT${Number(movie.runtime)}M` : undefined,
-      countryOfOrigin: movie.production_countries?.map(c => ({ '@type': 'Country', name: c.name })) || undefined,
-      aggregateRating: movie.vote_count ? {
-        '@type': 'AggregateRating',
-        ratingValue: Number(movie.vote_average || 0).toFixed(1),
-        ratingCount: Number(movie.vote_count),
-        bestRating: '10',
-        worstRating: '0'
-      } : undefined,
-      director: director ? { '@type': 'Person', name: director.name } : undefined,
-      actor: cast.slice(0, 10).map(person => ({ '@type': 'Person', name: person.name }))
-    };
-    const breadcrumb = {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('../', location.href).href },
-        { '@type': 'ListItem', position: 2, name: 'Movies', item: new URL('../pages/search', location.href).href },
-        { '@type': 'ListItem', position: 3, name: movie.title, item: canonical }
-      ]
-    };
-    [schema, breadcrumb].forEach(data => {
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify(data);
-      document.head.appendChild(script);
-    });
+    const schema = {'@context':'https://schema.org','@type':'Movie','@id':`${canonical}#movie`,url:canonical,name:movie.title,description:movie.overview || undefined,image:movie.poster_path ? IMAGE_BASE+movie.poster_path : localImage(movie.title),dateCreated:movie.release_date || undefined,genre:genres,director:director ? {'@type':'Person',name:director.name || director} : undefined,actor:cast.slice(0,12).map(p=>({'@type':'Person',name:p.name || p}))};
+    if (movie.runtime) schema.duration=`PT${Number(movie.runtime)}M`;
+    if (movie.vote_count) schema.aggregateRating={'@type':'AggregateRating',ratingValue:Number(movie.vote_average||0).toFixed(1),ratingCount:Number(movie.vote_count),bestRating:'10',worstRating:'0'};
+    const breadcrumb={'@context':'https://schema.org','@type':'BreadcrumbList','itemListElement':[{'@type':'ListItem',position:1,name:'Home',item:new URL('../',location.href).href},{'@type':'ListItem',position:2,name:'Movies',item:new URL('../pages/search',location.href).href},{'@type':'ListItem',position:3,name:movie.title,item:canonical}]};
+    [schema,breadcrumb].forEach(data=>{const s=document.createElement('script');s.type='application/ld+json';s.textContent=JSON.stringify(data);document.head.appendChild(s);});
   }
-
-  async function render() {
-    if (!id || !/^\d+$/.test(id)) {
-      root.replaceChildren(el('h1', 'Movie not found'), el('p', 'A valid movie id is required.', 'muted'), link('← Browse movies', '../pages/search', 'secondary-btn'));
-      return;
-    }
-    root.textContent = 'Loading movie details…';
-    try {
-      const [movie, entities, boxOffice, ott] = await Promise.all([
-        getTmdbMovie(id),
-        window.MovieBlogEntities?.loadEntities?.() || Promise.resolve({ actors: [] }),
-        json(`${DATA_BASE}box-office.json`, { movies: {} }),
-        json(`${DATA_BASE}ott.json`, { movies: {} })
-      ]);
-      if (!movie || movie.success === false) throw new Error('Movie not found');
-      setMeta(movie);
-      const { director, cast } = peopleFromCredits(movie);
-      const genres = genresText(movie);
-      const article = document.createElement('article');
-      article.className = 'card detail-card';
-      const posterWrap = el('div', '', 'poster-wrap');
-      const poster = document.createElement('img');
-      poster.className = 'poster'; poster.loading = 'eager'; poster.alt = `${movie.title} poster`;
-      poster.src = movie.poster_path ? IMAGE_BASE + movie.poster_path : '../assets/placeholder.png';
-      poster.onerror = () => { poster.src = '../assets/placeholder.png'; };
-      posterWrap.appendChild(poster);
-
-      const body = el('div', '', 'card-body');
-      body.appendChild(el('p', 'MOVIE', 'eyebrow'));
-      body.appendChild(el('h1', movie.title || 'Untitled'));
-      const metaParts = [];
-      if (movie.release_date) metaParts.push(movie.release_date.slice(0, 4));
-      metaParts.push(formatRuntime(movie.runtime));
-      if (movie.vote_average) metaParts.push(`⭐ ${Number(movie.vote_average).toFixed(1)}`);
-      if (movie.vote_count) metaParts.push(`${Number(movie.vote_count).toLocaleString()} votes`);
-      body.appendChild(el('p', metaParts.join(' • '), 'meta'));
-      if (genres.length) body.appendChild(el('p', genres.join(' • '), 'meta'));
-      if (movie.tagline) body.appendChild(el('p', `“${movie.tagline}”`, 'eyebrow'));
-      body.appendChild(el('p', movie.overview || 'Movie information is not available yet.', 'overview'));
-
-      const credits = section('Cast & Crew');
-      if (director) {
-        const row = el('p', '', 'meta');
-        row.appendChild(document.createTextNode('Director: '));
-        row.appendChild(link(director.name, `director?id=${encodeURIComponent(window.MovieBlogEntities?.slugify?.(director.name) || director.id)}`));
-        credits.appendChild(row);
-      }
-      if (cast.length) {
-        const castList = el('div', '', 'entity-list-inline');
-        cast.slice(0, 12).forEach(person => {
-          const known = (entities.actors || []).find(a => String(a.name).toLowerCase() === String(person.name).toLowerCase());
-          const slug = known?.id || window.MovieBlogEntities?.slugify?.(person.name) || person.id;
-          castList.appendChild(link(person.name, `actor?id=${encodeURIComponent(slug)}`));
-        });
-        credits.appendChild(castList);
-      }
-      if (!director && !cast.length) credits.appendChild(el('p', 'Cast and crew information is not available.', 'muted'));
-      body.appendChild(credits);
-      renderTrailer(movie, body);
-      renderProviders(movie, body);
-      renderBoxOffice(movie.id, body, boxOffice);
-      renderOtt(movie.id, body, ott);
-      body.appendChild(link('← Browse more movies', '../pages/search', 'secondary-btn'));
-      article.append(posterWrap, body);
-      root.replaceChildren(article);
-      addStructuredData(movie, director, cast, genres);
-    } catch (error) {
-      console.error(error);
-      root.replaceChildren(
-        el('h1', 'Movie details unavailable'),
-        el('p', 'We could not load this movie from the live movie database. Please try again shortly.', 'muted'),
-        link('← Browse movies', '../pages/search', 'secondary-btn')
-      );
-    }
+  function renderRelated(movie, localMovies, body) {
+    const genres=(movie.genres||[]).map(g=>String(g.name||g).toLowerCase());
+    const related=localMovies.filter(m=>m.id!==movie.id && ((m.genres||[]).some(g=>genres.includes(String(g.name||g).toLowerCase())) || m.language===movie.language)).slice(0,6);
+    if(!related.length) return;
+    const s=section('Related Movies'); const list=el('div','','entity-list-inline');
+    related.forEach(m=>list.appendChild(link(m.title,`./movie?id=${encodeURIComponent(m.id)}`)));
+    s.appendChild(list); body.appendChild(s);
   }
-
-  document.addEventListener('DOMContentLoaded', render);
+  function renderMovie(movie, localMovies, entities, boxOffice, ott) {
+    setMeta(movie);
+    const genres=(movie.genres||[]).map(g=>g.name||g).filter(Boolean);
+    const director = movie.directorName ? {name:movie.directorName,id:slug(movie.directorName)} : (movie.credits?.crew||[]).find(p=>p.job==='Director');
+    const cast=Array.isArray(movie.cast) ? movie.cast : (movie.credits?.cast||[]);
+    const article=el('article','','card detail-card');
+    const posterWrap=el('div','','poster-wrap'); const poster=document.createElement('img'); poster.className='poster'; poster.loading='eager'; poster.alt=`${movie.title} poster`; poster.src=movie.poster_path ? IMAGE_BASE+movie.poster_path : localImage(movie.title); poster.onerror=()=>{poster.src=PLACEHOLDER}; posterWrap.appendChild(poster);
+    const body=el('div','','card-body'); body.appendChild(el('p','MOVIE','eyebrow')); body.appendChild(el('h1',movie.title));
+    const meta=[]; if(movie.release_date) meta.push(String(movie.release_date).slice(0,10)); if(movie.runtime) meta.push(formatRuntime(movie.runtime)); if(movie.vote_average) meta.push(`⭐ ${Number(movie.vote_average).toFixed(1)}`); body.appendChild(el('p',meta.join(' • ') || 'Release information available','meta'));
+    if(genres.length) body.appendChild(el('p',genres.join(' • '),'meta')); body.appendChild(el('p',movie.overview || 'Movie information will be added soon.','overview'));
+    const credits=section('Cast & Crew');
+    if(director){const row=el('p','','meta'); row.appendChild(document.createTextNode('Director: ')); row.appendChild(link(director.name,`./director?id=${encodeURIComponent(director.id || slug(director.name))}`)); credits.appendChild(row);}
+    if(cast.length){const list=el('div','','entity-list-inline'); cast.slice(0,12).forEach(person=>{const name=person.name||person; list.appendChild(link(name,`./actor?id=${encodeURIComponent(slug(name))}`));}); credits.appendChild(list);}
+    if(!director&&!cast.length) credits.appendChild(el('p','Cast and crew information is not available yet.','muted')); body.appendChild(credits);
+    const bo=boxOffice?.movies?.[String(movie.id)]; const bos=section('Box Office'); if(bo){[['India Net',bo.indiaNet],['India Gross',bo.indiaGross],['Overseas',bo.overseas],['Worldwide',bo.worldwide],['Verdict',bo.verdict]].forEach(([k,v])=>{if(v)bos.appendChild(el('p',`${k}: ${v}`,'meta'));});}else bos.appendChild(el('p','Verified box-office figures will appear when editorial data is available.','muted')); body.appendChild(bos);
+    const ot=ott?.movies?.[String(movie.id)]; const os=section('OTT Release'); if(ot){if(ot.platform)os.appendChild(el('p',`Platform: ${ot.platform}`,'meta'));if(ot.releaseDate)os.appendChild(el('p',`Release date: ${ot.releaseDate}`,'meta'));}else os.appendChild(el('p','OTT availability will appear after verified release data is added.','muted')); body.appendChild(os);
+    if(!movie.local){const videos=movie.videos?.results||[];const trailer=videos.find(v=>v.site==='YouTube'&&v.type==='Trailer'&&(v.official||true));if(trailer?.key){const ts=section('Official Trailer');const f=document.createElement('iframe');f.width='100%';f.height='420';f.loading='lazy';f.allowFullscreen=true;f.title=`${movie.title} trailer`;f.src=`https://www.youtube.com/embed/${encodeURIComponent(trailer.key)}`;f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');ts.appendChild(f);body.appendChild(ts);}}
+    renderRelated(movie,localMovies,body); body.appendChild(link('← Browse more movies','../pages/search','secondary-btn')); article.append(posterWrap,body); root.replaceChildren(article); addSchema(movie,director,cast,genres);
+  }
+  async function render(){
+    const localRaw=await json(`${DATA_BASE}movies.json`,[]); const localMovies=Array.isArray(localRaw)?localRaw.map(normalizeLocal):[];
+    const boxOffice=await json(`${DATA_BASE}box-office.json`,{movies:{}}); const ott=await json(`${DATA_BASE}ott.json`,{movies:{}});
+    if(!requestedId){root.replaceChildren(el('h1','Movie Details'),el('p','Choose a movie from Search to view its details.','muted'),link('Browse movies','../pages/search','secondary-btn'));return;}
+    const local=localById(localMovies,requestedId);
+    if(local){
+      try { const live=await fetch(`../api/tmdb?mode=search&query=${encodeURIComponent(local.title)}&page=1&language=en-US`,{cache:'no-store'}); if(live.ok){const data=await live.json();const match=(data.results||[]).find(x=>String(x.title||'').toLowerCase()===local.title.toLowerCase()); if(match?.id){const r=await fetch(`../api/tmdb?mode=movie&id=${encodeURIComponent(match.id)}&language=en-US&region=IN`,{cache:'no-store'});if(r.ok){const tmdb=await r.json();if(tmdb&&!tmdb.success){renderMovie({...tmdb,local:false},localMovies,{},boxOffice,ott);return;}}}}} catch(_) {}
+      renderMovie(local,localMovies,{},boxOffice,ott); return;
+    }
+    if(!/^\d+$/.test(requestedId)){root.replaceChildren(el('h1','Movie not found'),el('p','This movie page is not available.','muted'),link('Browse movies','../pages/search','secondary-btn'));return;}
+    try { const r=await fetch(`../api/tmdb?mode=movie&id=${encodeURIComponent(requestedId)}&language=en-US&region=IN`,{cache:'no-store'});if(!r.ok)throw Error(r.status);const movie=await r.json();if(!movie||movie.success===false)throw Error('not found');renderMovie({...movie,local:false},localMovies,{},boxOffice,ott); }
+    catch(_){root.replaceChildren(el('h1','Movie details unavailable'),el('p','We could not load this movie right now. Please try again shortly.','muted'),link('Browse movies','../pages/search','secondary-btn'));}
+  }
+  document.addEventListener('DOMContentLoaded',render);
 })();
 </script>
 </body>

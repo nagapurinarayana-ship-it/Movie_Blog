@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developers.cloudflare.com/pages/functions/_routes.json",
+  "version": 1,
+  "include": [
+    "/api/*"
+  ],
+  "exclude": []
+}

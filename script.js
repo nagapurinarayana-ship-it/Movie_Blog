@@ -1,4 +1,4 @@
-/* MovieBlog V2 — Phase 1 client behavior */
+/* MovieBlog V2 — live TMDB catalog + local editorial data */
 (() => {
   const LOCAL_DATA_URL = './data/movies.json';
   const LOCAL_GENRE_URL = './data/genres.json';
@@ -35,6 +35,40 @@
   function movieUrl(id) { return `./pages/movie?id=${encodeURIComponent(id)}`; }
   function formatMeta(m) { return `${m.releaseDate || 'Release TBA'} • ${m.runtime || 0} min • ⭐ ${m.rating || 0}`; }
 
+  function normalizeMovie(movie) {
+    return {
+      ...movie,
+      id: movie.id || movie.imdbID || `${movie.title || 'movie'}-${movie.year || ''}`,
+      title: movie.title || movie.name || 'Untitled',
+      poster: movie.poster || movie.posterURL || (movie.poster_path ? TMDB_IMAGE_BASE + movie.poster_path : '') || movie.imageUrl || '',
+      overview: movie.overview || movie.plot || movie.description || movie.storyline || '',
+      releaseDate: String(movie.releaseDate || movie.release_date || movie.year || ''),
+      rating: Number(movie.rating || movie.vote_average || movie.imdbRating || 0),
+      runtime: Number(movie.runtime || movie.runtimeMinutes || 0),
+      cast: Array.isArray(movie.cast) ? movie.cast : (Array.isArray(movie.actors) ? movie.actors : []),
+      genres: Array.isArray(movie.genres) ? movie.genres : (Array.isArray(movie.genre) ? movie.genre : [])
+    };
+  }
+
+  async function tmdbPopular(pageNumber = 1) {
+    const response = await fetch(`./api/tmdb?mode=popular&page=${pageNumber}&language=en-US`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`TMDB popular returned ${response.status}`);
+    const data = await response.json();
+    return Array.isArray(data.results) ? data.results.map(normalizeMovie) : [];
+  }
+
+  function mergeMovies(localMovies, liveMovies) {
+    const merged = [];
+    const seen = new Set();
+    for (const movie of [...liveMovies, ...localMovies]) {
+      const key = String(movie.id || movie.title || '').toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      merged.push(movie);
+    }
+    return merged;
+  }
+
   function createCard(movie) {
     const tpl = cardTemplate.content.cloneNode(true);
     const article = tpl.querySelector('article');
@@ -46,7 +80,7 @@
 
     article.dataset.id = movie.id;
     article.setAttribute('aria-label', `Open ${movie.title}`);
-    img.src = movie.poster || (movie.poster_path ? TMDB_IMAGE_BASE + movie.poster_path : './assets/placeholder.png');
+    img.src = movie.poster || './assets/placeholder.png';
     img.alt = `${movie.title} poster`;
     title.textContent = movie.title || 'Untitled';
     meta.textContent = formatMeta(movie);
@@ -162,46 +196,14 @@
     });
   }
 
-  function normalizeMovie(movie) {
-    return {
-      ...movie,
-      id: movie.id || movie.imdbID || `${movie.title || 'movie'}-${movie.year || ''}`,
-      title: movie.title || movie.name || 'Untitled',
-      poster: movie.poster || movie.posterURL || movie.poster_path || movie.imageUrl || '',
-      overview: movie.overview || movie.plot || movie.description || movie.storyline || '',
-      releaseDate: String(movie.releaseDate || movie.release_date || movie.year || ''),
-      rating: Number(movie.rating || movie.vote_average || movie.imdbRating || 0),
-      runtime: Number(movie.runtime || movie.runtimeMinutes || 0),
-      cast: Array.isArray(movie.cast) ? movie.cast : (Array.isArray(movie.actors) ? movie.actors : []),
-      genres: Array.isArray(movie.genres) ? movie.genres : (Array.isArray(movie.genre) ? movie.genre : [])
-    };
-  }
-
   async function loadLocalData() {
-    const [dataResponse, genreResponse] = await Promise.all([fetch(LOCAL_DATA_URL, { cache: 'no-store' }), fetch(LOCAL_GENRE_URL, { cache: 'no-store' })]);
-    if (!dataResponse.ok) throw new Error('Local movie data unavailable');
-    const data = await dataResponse.json();
+    const [dataResponse, genreResponse] = await Promise.all([
+      fetch(LOCAL_DATA_URL, { cache: 'no-store' }),
+      fetch(LOCAL_GENRE_URL, { cache: 'no-store' })
+    ]);
+    const data = dataResponse.ok ? await dataResponse.json() : [];
     const genreData = genreResponse.ok ? await genreResponse.json() : [];
     return { data: Array.isArray(data) ? data : [], genres: Array.isArray(genreData) ? genreData : [] };
-  }
-
-  async function fetchFromSampleAPIs() {
-    const endpoints = ['https://api.sampleapis.com/movies/action','https://api.sampleapis.com/movies/drama','https://api.sampleapis.com/movies/comedy'];
-    const responses = await Promise.allSettled(endpoints.map(url => fetch(url)));
-    const all = [];
-    for (const result of responses) {
-      if (result.status !== 'fulfilled' || !result.value.ok) continue;
-      try {
-        const data = await result.value.json();
-        if (Array.isArray(data)) all.push(...data.map(normalizeMovie));
-      } catch (_) {}
-    }
-    const seen = new Set();
-    return all.filter(movie => {
-      if (seen.has(movie.id)) return false;
-      seen.add(movie.id);
-      return true;
-    });
   }
 
   function featuredMovie() {
@@ -233,29 +235,31 @@
   }
 
   async function load() {
+    loadingEl.textContent = 'Loading movies from TMDB…';
     try {
-      let local = { data: [], genres: [] };
-      try { local = await loadLocalData(); } catch (_) {}
-      if (local.data.length) {
-        movies = local.data.map(normalizeMovie);
-        genres = local.genres;
-      } else {
-        movies = await fetchFromSampleAPIs();
-        genres = [...new Set(movies.flatMap(movie => movie.genres || []))].sort();
-      }
+      const local = await loadLocalData().catch(() => ({ data: [], genres: [] }));
+      const live = await tmdbPopular(1);
+      movies = mergeMovies(local.data.map(normalizeMovie), live);
+      genres = [...new Set([
+        ...local.genres.map(g => typeof g === 'string' ? g : g?.name).filter(Boolean),
+        ...movies.flatMap(movie => movie.genres || [])
+      ])].sort();
       populateGenres();
       filtered = movies.slice();
       featuredMovie();
       resetPagination();
     } catch (error) {
-      loadingEl.textContent = 'Movies could not be loaded. Please try again.';
-      const retry = document.createElement('button');
-      retry.type = 'button';
-      retry.textContent = 'Try again';
-      retry.className = 'icon-btn';
-      retry.addEventListener('click', () => load());
-      loadingEl.appendChild(retry);
-      console.error(error);
+      try {
+        const local = await loadLocalData();
+        movies = local.data.map(normalizeMovie);
+        genres = local.genres;
+        populateGenres();
+        filtered = movies.slice();
+        featuredMovie();
+        resetPagination();
+      } catch (_) {
+        loadingEl.textContent = 'Movies could not be loaded. Please try again.';
+      }
     }
   }
 

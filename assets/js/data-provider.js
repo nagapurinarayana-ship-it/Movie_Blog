@@ -1,88 +1,66 @@
 (() => {
   const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+  const API_BASE = './api/tmdb';
 
   function normalize(movie) {
     return {
       ...movie,
-      id: movie.id || movie.imdbID || `${movie.title || movie.name || 'movie'}-${movie.year || ''}`,
-      title: movie.title || movie.name || 'Untitled',
-      poster: movie.poster || (movie.poster_path ? IMAGE_BASE + movie.poster_path : ''),
-      overview: movie.overview || movie.plot || movie.description || '',
-      releaseDate: String(movie.releaseDate || movie.release_date || movie.year || ''),
-      rating: Number(movie.rating || movie.vote_average || movie.imdbRating || 0),
-      runtime: Number(movie.runtime || movie.runtimeMinutes || 0),
-      cast: Array.isArray(movie.cast) ? movie.cast : [],
-      genres: Array.isArray(movie.genres) ? movie.genres : []
+      id: movie?.id || movie?.imdbID || `${movie?.title || movie?.name || 'movie'}-${movie?.year || ''}`,
+      title: movie?.title || movie?.name || 'Untitled',
+      poster: movie?.poster || (movie?.poster_path ? IMAGE_BASE + movie.poster_path : ''),
+      overview: movie?.overview || movie?.plot || movie?.description || movie?.biography || '',
+      releaseDate: String(movie?.releaseDate || movie?.release_date || movie?.first_air_date || movie?.year || ''),
+      rating: Number(movie?.rating || movie?.vote_average || movie?.imdbRating || 0),
+      runtime: Number(movie?.runtime || movie?.runtimeMinutes || 0),
+      genres: Array.isArray(movie?.genres) ? movie.genres : [],
+      backdrop: movie?.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : ''
     };
   }
 
-  async function request(path) {
-    const response = await fetch(path, { cache: 'no-store' });
+  async function request(params) {
+    const query = new URLSearchParams(params);
+    const response = await fetch(`${API_BASE}?${query.toString()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Provider returned ${response.status}`);
     return response.json();
   }
 
   async function popular(page = 1) {
-    const data = await request(`./api/tmdb?mode=popular&page=${encodeURIComponent(page)}&language=en-US`);
+    const data = await request({ mode: 'popular', page, language: 'en-US', region: 'IN' });
+    return Array.isArray(data.results) ? data.results.map(normalize) : [];
+  }
+
+  async function trending() {
+    const data = await request({ mode: 'trending', language: 'en-US' });
     return Array.isArray(data.results) ? data.results.map(normalize) : [];
   }
 
   async function search(query, page = 1) {
-    const data = await request(`./api/tmdb?mode=search&query=${encodeURIComponent(query)}&page=${encodeURIComponent(page)}&language=en-US`);
+    const data = await request({ mode: 'search', query, page, language: 'en-US' });
     return Array.isArray(data.results) ? data.results.map(normalize) : [];
   }
 
-  window.MovieBlogDataProvider = { normalize, popular, search };
-
-  const originalFetch = window.fetch.bind(window);
-
-  async function enrichMoviePosters(movies) {
-    return Promise.all(movies.map(async movie => {
-      if (movie.poster || movie.poster_path) return movie;
-      try {
-        const data = await search(movie.title, 1);
-        const match = data.find(item => String(item.title).toLowerCase() === String(movie.title).toLowerCase()) || data[0];
-        if (match?.poster) return { ...movie, poster: match.poster, poster_path: match.poster_path || '' };
-      } catch (_) {}
-      return movie;
-    }));
+  async function movie(id) {
+    const data = await request({ mode: 'movie', id, language: 'en-US' });
+    const normalized = normalize(data);
+    normalized.cast = Array.isArray(data.credits?.cast) ? data.credits.cast.slice(0, 24).map(person => ({ id: person.id, name: person.name, character: person.character, profile: person.profile_path ? `https://image.tmdb.org/t/p/w185${person.profile_path}` : '' })) : [];
+    normalized.directors = Array.isArray(data.credits?.crew) ? data.credits.crew.filter(person => person.job === 'Director').map(person => ({ id: person.id, name: person.name })) : [];
+    normalized.videos = Array.isArray(data.videos?.results) ? data.videos.results : [];
+    normalized.providers = data['watch/providers']?.results?.IN || null;
+    return normalized;
   }
 
-  window.fetch = async (input, init) => {
-    const requestUrl = typeof input === 'string' ? input : input?.url || '';
+  async function person(id) {
+    const data = await request({ mode: 'person', id, language: 'en-US' });
+    return {
+      ...data,
+      id: data.id,
+      name: data.name || 'Unknown',
+      biography: data.biography || '',
+      profile: data.profile_path ? `https://image.tmdb.org/t/p/w500${data.profile_path}` : '',
+      knownFor: Array.isArray(data.combined_credits?.cast) ? data.combined_credits.cast.slice(0, 30).map(normalize) : [],
+      crew: Array.isArray(data.combined_credits?.crew) ? data.combined_credits.crew.slice(0, 30).map(normalize) : []
+    };
+  }
 
-    if (requestUrl.includes('/data/movies.json')) {
-      const response = await originalFetch(input, init);
-      if (!response.ok) return response;
-      try {
-        const data = await response.clone().json();
-        const movies = Array.isArray(data) ? data : [];
-        const enriched = await enrichMoviePosters(movies);
-        return new Response(JSON.stringify(enriched), {
-          status: response.status,
-          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-        });
-      } catch (_) {
-        return response;
-      }
-    }
-
-    // Compatibility bridge for the old fallback loader.
-    if (requestUrl.includes('api.sampleapis.com/movies/')) {
-      try {
-        const movies = await popular(1);
-        return new Response(JSON.stringify(movies), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      } catch (_) {
-        return new Response('[]', {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
-    return originalFetch(input, init);
-  };
+  window.MovieBlogDataProvider = { normalize, popular, trending, search, movie, person };
 })();

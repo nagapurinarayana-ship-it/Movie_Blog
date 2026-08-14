@@ -29,3 +29,6 @@ jobs:
 
       - name: Audit SEO routes
         run: node scripts/seo-audit.mjs
+
+      - name: Audit monetization
+        run: node scripts/monetization-audit.mjs

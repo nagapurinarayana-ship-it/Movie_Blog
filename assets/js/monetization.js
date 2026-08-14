@@ -2,7 +2,7 @@
   const POPUNDER = 'https://pl30851769.effectivecpmnetwork.com/1c/c7/e4/1cc7e4e406db4b9476e0f28559c0b9a8.js';
   const SOCIAL_BAR = 'https://pl30851772.effectivecpmnetwork.com/67/81/f1/6781f148df67e59df827d9028b51be69.js';
   const NATIVE_SRC = 'https://pl30851771.effectivecpmnetwork.com/a96924b820785181df59f6efdfa8719f/invoke.js';
-  const NATIVE_CONTAINER_ID = 'container-a96924b820785181df59f6efdfa8719f';
+  const NATIVE_CONTAINER_PREFIX = 'movieblog-native-';
   const BANNER_468_SRC = 'https://www.highperformanceformat.com/63e6ab533495630055076eb684026b90/invoke.js';
   const BANNER_468_KEY = '63e6ab533495630055076eb684026b90';
   const BANNER_728_SRC = 'https://www.highperformanceformat.com/b4b560626f94ccb0ffe06b2047f809ab/invoke.js';
@@ -17,11 +17,13 @@
   const BANNER_160X600_KEY = '33768b1090012fa1b3cae3845bc9a074';
   const SMARTLINK = 'https://www.effectivecpmnetwork.com/yjevb0bc?key=4f5ce136b4df6a95c4e824c66aaeb316';
 
+  let nativeCounter = 0;
+  let bannerQueue = Promise.resolve();
+
   async function loadConfig() {
     try {
-      const current = document.currentScript;
-      const base = current?.src ? new URL('../../config/monetization.json', current.src).href : './config/monetization.json';
-      const response = await fetch(base, { cache: 'no-store' });
+      const url = new URL('/config/monetization.json', location.origin).href;
+      const response = await fetch(url, { cache: 'no-store' });
       if (!response.ok) return null;
       return await response.json();
     } catch (_) {
@@ -40,7 +42,6 @@
   }
 
   function addGlobalScripts() {
-    // Adsterra recommends one popunder per page. Social Bar is also global.
     addScript(POPUNDER);
     addScript(SOCIAL_BAR);
   }
@@ -53,9 +54,10 @@
   }
 
   function addNative(host) {
-    if (!host || host.querySelector(`#${NATIVE_CONTAINER_ID}`)) return;
+    if (!host || host.querySelector('[data-native-ad]')) return;
     const container = document.createElement('div');
-    container.id = NATIVE_CONTAINER_ID;
+    container.id = `${NATIVE_CONTAINER_PREFIX}${++nativeCounter}`;
+    container.dataset.nativeAd = 'true';
     const label = document.createElement('span');
     label.className = 'ad-label';
     label.textContent = 'Advertisement';
@@ -71,16 +73,23 @@
     if (!host) return;
     const wrapper = document.createElement('div');
     wrapper.className = 'ad-banner';
-    wrapper.style.cssText = 'max-width:100%;overflow:hidden;text-align:center;min-height:' + height + 'px';
+    wrapper.style.cssText = `max-width:100%;overflow:hidden;text-align:center;min-height:${height}px`;
     const label = document.createElement('span');
     label.className = 'ad-label';
     label.textContent = `Advertisement · ${width}×${height}`;
-    const options = document.createElement('script');
-    options.textContent = `atOptions = { key: '${key}', format: 'iframe', height: ${height}, width: ${width}, params: {} };`;
-    const loader = document.createElement('script');
-    loader.src = src;
-    wrapper.append(label, options, loader);
+    wrapper.appendChild(label);
     host.appendChild(wrapper);
+
+    // HighPerformanceFormat reads the global atOptions when its loader executes.
+    // Serialize banner loads so multiple placements cannot overwrite atOptions.
+    bannerQueue = bannerQueue.then(() => new Promise(resolve => {
+      window.atOptions = { key, format: 'iframe', height, width, params: {} };
+      const loader = document.createElement('script');
+      loader.src = src;
+      loader.onload = resolve;
+      loader.onerror = resolve;
+      wrapper.appendChild(loader);
+    }));
   }
 
   function addResponsiveBanner(host) {
@@ -118,7 +127,6 @@
   function mountPlacement(host, placement) {
     if (!host) return;
     prepareHost(host);
-
     if (placement === 'homeTop') {
       addNative(host);
       addBanner(host, BANNER_468_KEY, BANNER_468_SRC, 468, 60);
@@ -147,9 +155,7 @@
       host.appendChild(desktop);
       return;
     }
-    if (placement === 'articleEnd') {
-      addSmartlink(host);
-    }
+    if (placement === 'articleEnd') addSmartlink(host);
   }
 
   function autoCreateSlots() {
@@ -157,7 +163,6 @@
     const path = location.pathname.toLowerCase();
     const isLegal = /\/(privacy|terms|disclaimer|contact|about)(\.html)?$/.test(path);
     if (isLegal) return;
-
     const main = document.querySelector('main');
     if (!main) return;
 
@@ -180,15 +185,12 @@
   loadConfig().then(config => {
     const enabled = Boolean(config?.enabled && config?.provider === 'effectivecpm');
     const placements = config?.placements || {};
-
     if (!enabled) {
       document.querySelectorAll('[data-ad-slot]').forEach(host => host.setAttribute('aria-hidden', 'true'));
       return;
     }
-
     autoCreateSlots();
     addGlobalScripts();
-
     document.querySelectorAll('[data-ad-slot]').forEach(host => {
       const placement = host.dataset.adSlot;
       if (placements[placement]) mountPlacement(host, placement);

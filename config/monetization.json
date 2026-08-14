@@ -1,17 +1,16 @@
 {
   "schemaVersion": 1,
-  "enabled": false,
-  "provider": "",
+  "enabled": true,
+  "provider": "effectivecpm",
   "placements": {
-    "homeTop": false,
-    "homeMid": false,
-    "articleTop": false,
-    "articleMid": false,
-    "articleEnd": false,
-    "sidebar": false
+    "homeTop": true,
+    "homeMid": true,
+    "articleTop": true,
+    "articleMid": true,
+    "articleEnd": true,
+    "sidebar": true
   },
   "rules": [
-    "Never load an ad provider until enabled is true and the provider is configured.",
     "Keep at least one clear content area before the first ad placement.",
     "Do not use deceptive buttons, fake download controls, or ads that obstruct primary content.",
     "Keep third-party ad code isolated from core MovieBlog application code."

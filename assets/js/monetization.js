@@ -1,13 +1,21 @@
 (() => {
-  const POPUNDER = 'https://pl30815332.effectivecpmnetwork.com/98/cd/4d/98cd4d37b3a5c234c49c85952c033714.js';
-  const SOCIAL_BAR = 'https://pl30815335.effectivecpmnetwork.com/e7/87/aa/e787aa4e8d5075169853c0d1fe5fcabc.js';
-  const NATIVE_SRC = 'https://pl30815334.effectivecpmnetwork.com/29feded00f4ae2c8a3b2719189977fff/invoke.js';
-  const NATIVE_CONTAINER_ID = 'container-29feded00f4ae2c8a3b2719189977fff';
-  const BANNER_468_SRC = 'https://www.highperformanceformat.com/75b0fc4d7ef9bda7dbda8e3863498abc/invoke.js';
-  const BANNER_728_SRC = 'https://www.highperformanceformat.com/b5828b9099d859c0a506e4067dd77370/invoke.js';
-  const BANNER_468_KEY = '75b0fc4d7ef9bda7dbda8e3863498abc';
-  const BANNER_728_KEY = 'b5828b9099d859c0a506e4067dd77370';
-  const SMARTLINK = 'https://www.effectivecpmnetwork.com/hcit0ft2?key=3383ae2b2a94f70103f6b28c372f4f72';
+  const POPUNDER = 'https://pl30851769.effectivecpmnetwork.com/1c/c7/e4/1cc7e4e406db4b9476e0f28559c0b9a8.js';
+  const SOCIAL_BAR = 'https://pl30851772.effectivecpmnetwork.com/67/81/f1/6781f148df67e59df827d9028b51be69.js';
+  const NATIVE_SRC = 'https://pl30851771.effectivecpmnetwork.com/a96924b820785181df59f6efdfa8719f/invoke.js';
+  const NATIVE_CONTAINER_ID = 'container-a96924b820785181df59f6efdfa8719f';
+  const BANNER_468_SRC = 'https://www.highperformanceformat.com/63e6ab533495630055076eb684026b90/invoke.js';
+  const BANNER_468_KEY = '63e6ab533495630055076eb684026b90';
+  const BANNER_728_SRC = 'https://www.highperformanceformat.com/b4b560626f94ccb0ffe06b2047f809ab/invoke.js';
+  const BANNER_728_KEY = 'b4b560626f94ccb0ffe06b2047f809ab';
+  const BANNER_320_SRC = 'https://www.highperformanceformat.com/85d1302867474481d7c488ca8f3bf6ce/invoke.js';
+  const BANNER_320_KEY = '85d1302867474481d7c488ca8f3bf6ce';
+  const BANNER_300_SRC = 'https://www.highperformanceformat.com/e2b5aeccaccd5399e3ca497e7d30b95b/invoke.js';
+  const BANNER_300_KEY = 'e2b5aeccaccd5399e3ca497e7d30b95b';
+  const BANNER_160X300_SRC = 'https://www.highperformanceformat.com/2d3550da16b1b6f1294563a97a9b21d9/invoke.js';
+  const BANNER_160X300_KEY = '2d3550da16b1b6f1294563a97a9b21d9';
+  const BANNER_160X600_SRC = 'https://www.highperformanceformat.com/33768b1090012fa1b3cae3845bc9a074/invoke.js';
+  const BANNER_160X600_KEY = '33768b1090012fa1b3cae3845bc9a074';
+  const SMARTLINK = 'https://www.effectivecpmnetwork.com/yjevb0bc?key=4f5ce136b4df6a95c4e824c66aaeb316';
 
   async function loadConfig() {
     try {
@@ -32,8 +40,16 @@
   }
 
   function addGlobalScripts() {
+    // Adsterra recommends one popunder per page. Social Bar is also global.
     addScript(POPUNDER);
     addScript(SOCIAL_BAR);
+  }
+
+  function createHost(className = 'ad-slot-generated') {
+    const host = document.createElement('div');
+    host.className = `ad-slot ${className}`;
+    host.setAttribute('aria-label', 'Advertisement');
+    return host;
   }
 
   function addNative(host) {
@@ -55,7 +71,7 @@
     if (!host) return;
     const wrapper = document.createElement('div');
     wrapper.className = 'ad-banner';
-    wrapper.style.cssText = 'max-width:100%;overflow:hidden;text-align:center';
+    wrapper.style.cssText = 'max-width:100%;overflow:hidden;text-align:center;min-height:' + height + 'px';
     const label = document.createElement('span');
     label.className = 'ad-label';
     label.textContent = `Advertisement · ${width}×${height}`;
@@ -65,6 +81,17 @@
     loader.src = src;
     wrapper.append(label, options, loader);
     host.appendChild(wrapper);
+  }
+
+  function addResponsiveBanner(host) {
+    if (!host) return;
+    const desktop = document.createElement('div');
+    desktop.className = 'ad-desktop-only';
+    addBanner(desktop, BANNER_728_KEY, BANNER_728_SRC, 728, 90);
+    const mobile = document.createElement('div');
+    mobile.className = 'ad-mobile-only';
+    addBanner(mobile, BANNER_320_KEY, BANNER_320_SRC, 320, 50);
+    host.append(desktop, mobile);
   }
 
   function addSmartlink(host) {
@@ -80,25 +107,44 @@
     host.append(label, link);
   }
 
-  function mountPlacement(host, placement) {
+  function prepareHost(host) {
     if (!host) return;
     host.replaceChildren();
     host.removeAttribute('aria-hidden');
     host.classList.remove('ad-slot-disabled');
     host.classList.add('ad-slot-active');
+  }
+
+  function mountPlacement(host, placement) {
+    if (!host) return;
+    prepareHost(host);
 
     if (placement === 'homeTop') {
       addNative(host);
       addBanner(host, BANNER_468_KEY, BANNER_468_SRC, 468, 60);
-      addSmartlink(host);
+      return;
+    }
+    if (placement === 'homeMid' || placement === 'articleMid') {
+      addResponsiveBanner(host);
       return;
     }
     if (placement === 'articleTop') {
       addNative(host);
       return;
     }
-    if (placement === 'homeMid' || placement === 'articleMid' || placement === 'sidebar') {
-      addBanner(host, BANNER_728_KEY, BANNER_728_SRC, 728, 90);
+    if (placement === 'sidebar') {
+      const desktop = document.createElement('div');
+      desktop.className = 'ad-desktop-only';
+      addBanner(desktop, BANNER_300_KEY, BANNER_300_SRC, 300, 250);
+      addBanner(desktop, BANNER_160X300_KEY, BANNER_160X300_SRC, 160, 300);
+      host.appendChild(desktop);
+      return;
+    }
+    if (placement === 'sidebarTall') {
+      const desktop = document.createElement('div');
+      desktop.className = 'ad-desktop-only';
+      addBanner(desktop, BANNER_160X600_KEY, BANNER_160X600_SRC, 160, 600);
+      host.appendChild(desktop);
       return;
     }
     if (placement === 'articleEnd') {
@@ -106,18 +152,44 @@
     }
   }
 
+  function autoCreateSlots() {
+    if (document.querySelector('[data-ad-slot]')) return;
+    const path = location.pathname.toLowerCase();
+    const isLegal = /\/(privacy|terms|disclaimer|contact|about)(\.html)?$/.test(path);
+    if (isLegal) return;
+
+    const main = document.querySelector('main');
+    if (!main) return;
+
+    const top = createHost('ad-slot-auto-top');
+    top.dataset.adSlot = path.includes('/article') || path.includes('/movie') || path.includes('/actor') || path.includes('/director') ? 'articleTop' : 'homeTop';
+    main.insertBefore(top, main.firstChild);
+
+    const sections = [...main.querySelectorAll('section')];
+    if (sections.length > 1) {
+      const mid = createHost('ad-slot-auto-mid');
+      mid.dataset.adSlot = 'articleMid';
+      sections[Math.min(1, sections.length - 1)].after(mid);
+    }
+
+    const end = createHost('ad-slot-auto-end');
+    end.dataset.adSlot = 'articleEnd';
+    main.appendChild(end);
+  }
+
   loadConfig().then(config => {
     const enabled = Boolean(config?.enabled && config?.provider === 'effectivecpm');
     const placements = config?.placements || {};
-    const hosts = document.querySelectorAll('[data-ad-slot]');
 
     if (!enabled) {
-      hosts.forEach(host => host.setAttribute('aria-hidden', 'true'));
+      document.querySelectorAll('[data-ad-slot]').forEach(host => host.setAttribute('aria-hidden', 'true'));
       return;
     }
 
+    autoCreateSlots();
     addGlobalScripts();
-    hosts.forEach(host => {
+
+    document.querySelectorAll('[data-ad-slot]').forEach(host => {
       const placement = host.dataset.adSlot;
       if (placements[placement]) mountPlacement(host, placement);
       else host.setAttribute('aria-hidden', 'true');

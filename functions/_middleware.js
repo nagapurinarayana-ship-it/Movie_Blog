@@ -13,7 +13,11 @@ export async function onRequest(context) {
 
   const html = await response.text();
   if (html.includes('/assets/js/monetization.js')) {
-    return new Response(html, response);
+    return new Response(html, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    });
   }
 
   const injected = html.replace(

@@ -59,12 +59,11 @@
     const label = document.createElement('span');
     label.className = 'ad-label';
     label.textContent = `Advertisement · ${width}×${height}`;
-    const frame = document.createElement('div');
     const options = document.createElement('script');
     options.textContent = `atOptions = { key: '${key}', format: 'iframe', height: ${height}, width: ${width}, params: {} };`;
     const loader = document.createElement('script');
     loader.src = src;
-    wrapper.append(label, frame, options, loader);
+    wrapper.append(label, options, loader);
     host.appendChild(wrapper);
   }
 
@@ -88,7 +87,13 @@
     host.classList.remove('ad-slot-disabled');
     host.classList.add('ad-slot-active');
 
-    if (placement === 'homeTop' || placement === 'articleTop') {
+    if (placement === 'homeTop') {
+      addNative(host);
+      addBanner(host, BANNER_468_KEY, BANNER_468_SRC, 468, 60);
+      addSmartlink(host);
+      return;
+    }
+    if (placement === 'articleTop') {
       addNative(host);
       return;
     }

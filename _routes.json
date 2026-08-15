@@ -3,9 +3,7 @@
   "version": 1,
   "include": [
     "/",
-    "/pages/*"
-  ],
-  "exclude": [
+    "/pages/*",
     "/api/*"
   ]
 }

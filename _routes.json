@@ -1,9 +1,0 @@
-{
-  "$schema": "https://developers.cloudflare.com/pages/functions/_routes.json",
-  "version": 1,
-  "include": [
-    "/",
-    "/pages/*",
-    "/api/tmdb"
-  ]
-}

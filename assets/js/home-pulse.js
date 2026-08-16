@@ -2,19 +2,19 @@
   const root=document.getElementById('trendFeed');
   if(!root)return;
   const safe=v=>String(v||'').replace(/\s+/g,' ').trim();
+  const classify=t=>{const s=[t.title,t.description,...(t.newsTitles||[])].join(' ');if(/rumou?r|dating|relationship|marriage|breakup|engagement|spotted|affair|secret|wedding|feud|reportedly/i.test(s))return'buzz';if(/viral|meme|internet|social media|reels|instagram|youtube|reaction|views|broke the internet/i.test(s))return'viral';return'trending'};
   async function load(){
     try{
       const r=await fetch('./api/trends',{cache:'no-store'}); if(!r.ok)throw Error('trend api');
       const d=await r.json(); let rows=Array.isArray(d.trends)?d.trends:[];
-      if(window.MovieBlogTrendEngine) rows=window.MovieBlogTrendEngine.transform(rows);
-      rows=rows.filter(x=>x.relevance==='high'||x.relevance==='medium').slice(0,6);
+      rows=rows.filter(x=>x.relevance==='high'||x.relevance==='medium').slice(0,6).map(x=>({...x,bucket:classify(x)}));
       root.replaceChildren();
       if(!rows.length){root.innerHTML='<p class="muted">No strong entertainment signals are available right now.</p>';return;}
       rows.forEach((x,i)=>{
         const a=document.createElement('a');a.className='trend-item';a.href=x.openUrl||'./pages/trending';a.target=x.openUrl?'_blank':'';a.rel=x.openUrl?'noopener noreferrer':'';
         const rank=document.createElement('span');rank.className='trend-rank';rank.textContent=String(i+1).padStart(2,'0');
         const body=document.createElement('span');body.className='trend-item-body';
-        const h=document.createElement('strong');h.className='trend-title';h.textContent=safe(x.headline||x.title)||'Entertainment trend';
+        const h=document.createElement('strong');h.className='trend-title';h.textContent=safe(x.title)||'Entertainment trend';
         const p=document.createElement('small');p.className='trend-meta';p.textContent=`${x.traffic||'Trending'} · ${x.bucket==='buzz'?'Buzz':x.bucket==='viral'?'Viral':'Trending'} · ${x.score??0} pulse`;
         body.append(h,p);a.append(rank,body);root.appendChild(a);
       });

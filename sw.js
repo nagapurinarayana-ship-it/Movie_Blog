@@ -1,127 +1,15 @@
-const CACHE_NAME = 'movieblog-v7-navigation';
+const CACHE_NAME = 'movieblog-v8-light-live';
 const BASE = new URL('./', self.registration.scope).pathname;
 const OFFLINE_URL = `${BASE}offline.html`;
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 const ASSETS = [
-  BASE,
-  `${BASE}index.html`,
-  `${BASE}style.css`,
-  `${BASE}script.js`,
-  `${BASE}assets/js/data-provider.js`,
-  `${BASE}assets/js/trending.js`,
-  `${BASE}assets/js/news.js`,
-  `${BASE}assets/js/article.js`,
-  `${BASE}assets/js/search.js`,
-  `${BASE}manifest.json`,
-  OFFLINE_URL
+  BASE, `${BASE}index.html`, `${BASE}style.css`, `${BASE}assets/css/ui.css`, `${BASE}script.js`,
+  `${BASE}assets/js/data-provider.js`, `${BASE}assets/js/home-pulse.js`, `${BASE}assets/js/editorial-feed.js`,
+  `${BASE}assets/js/trend-engine.js`, `${BASE}assets/js/trending.js`, `${BASE}assets/js/news.js`,
+  `${BASE}assets/js/article.js`, `${BASE}assets/js/search.js`, `${BASE}manifest.json`, OFFLINE_URL
 ];
-
-const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 750"><rect width="500" height="750" fill="#172033"/><rect x="35" y="35" width="430" height="680" rx="24" fill="#23304a"/><text x="250" y="320" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="42" font-weight="700">MOVIEBLOG</text><text x="250" y="380" text-anchor="middle" fill="#b9c6de" font-family="Arial,Helvetica,sans-serif" font-size="24">Movie Poster</text></svg>`;
-
-async function enrichMovies(response) {
-  try {
-    const data = await response.clone().json();
-    if (!Array.isArray(data)) return response;
-
-    const enriched = await Promise.all(data.map(async movie => {
-      if (movie.poster || movie.poster_path) return movie;
-      const title = String(movie.title || movie.name || '').trim();
-      if (!title) return movie;
-
-      try {
-        const url = `${new URL('./api/tmdb', self.registration.scope).href}?mode=search&query=${encodeURIComponent(title)}&page=1&language=en-US`;
-        const result = await fetch(url, { cache: 'no-store' });
-        if (!result.ok) return movie;
-        const payload = await result.json();
-        const match = Array.isArray(payload.results)
-          ? (payload.results.find(item => String(item.title || '').toLowerCase() === title.toLowerCase()) || payload.results[0])
-          : null;
-        if (match?.poster_path) {
-          return {
-            ...movie,
-            poster: `${IMAGE_BASE}${match.poster_path}`,
-            poster_path: match.poster_path
-          };
-        }
-      } catch (_) {}
-      return movie;
-    }));
-
-    return new Response(JSON.stringify(enriched), {
-      status: response.status,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'no-store'
-      }
-    });
-  } catch (_) {
-    return response;
-  }
-}
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-
-  const url = new URL(event.request.url);
-  const isSameOrigin = url.origin === location.origin;
-  const isDocument = event.request.mode === 'navigate' || event.request.destination === 'document';
-
-  if (url.pathname.endsWith('/assets/placeholder.png')) {
-    event.respondWith(new Response(PLACEHOLDER_SVG, {
-      status: 200,
-      headers: {
-        'Content-Type': 'image/svg+xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=86400'
-      }
-    }));
-    return;
-  }
-
-  if (isSameOrigin && url.pathname.endsWith('/data/movies.json')) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => response.ok ? enrichMovies(response) : response)
-        .catch(() => caches.match(event.request).then(cached => cached || caches.match(OFFLINE_URL)))
-    );
-    return;
-  }
-
-  // HTML/navigation is network-first so updated extensionless links and SEO
-  // metadata are never hidden behind a stale service-worker cache.
-  if (isSameOrigin && isDocument) {
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .then(response => response)
-        .catch(() => caches.match(event.request).then(cached => cached || caches.match(OFFLINE_URL)))
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      if (response.ok && isSameOrigin) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-      }
-      return response;
-    }).catch(() => caches.match(OFFLINE_URL)))
-  );
-});
+const PLACEHOLDER_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 750"><rect width="500" height="750" fill="#f0eee8"/><rect x="35" y="35" width="430" height="680" rx="24" fill="#fff"/><text x="250" y="320" text-anchor="middle" fill="#111" font-family="Arial,Helvetica,sans-serif" font-size="42" font-weight="700">MOVIEBLOG</text><text x="250" y="380" text-anchor="middle" fill="#777" font-family="Arial,Helvetica,sans-serif" font-size="24">Movie Poster</text></svg>`;
+async function enrichMovies(response){try{const data=await response.clone().json();if(!Array.isArray(data))return response;const enriched=await Promise.all(data.map(async movie=>{if(movie.poster||movie.poster_path)return movie;const title=String(movie.title||movie.name||'').trim();if(!title)return movie;try{const url=`${new URL('./api/tmdb',self.registration.scope).href}?mode=search&query=${encodeURIComponent(title)}&page=1&language=en-US`;const result=await fetch(url,{cache:'no-store'});if(!result.ok)return movie;const payload=await result.json();const match=Array.isArray(payload.results)?(payload.results.find(item=>String(item.title||'').toLowerCase()===title.toLowerCase())||payload.results[0]):null;if(match?.poster_path)return {...movie,poster:`${IMAGE_BASE}${match.poster_path}`,poster_path:match.poster_path}}catch(_){}return movie}));return new Response(JSON.stringify(enriched),{status:response.status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}})}catch(_){return response}}
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;const url=new URL(event.request.url),isSameOrigin=url.origin===location.origin,isDocument=event.request.mode==='navigate'||event.request.destination==='document';if(url.pathname.endsWith('/assets/placeholder.png')){event.respondWith(new Response(PLACEHOLDER_SVG,{status:200,headers:{'Content-Type':'image/svg+xml; charset=utf-8','Cache-Control':'public, max-age=86400'}}));return}if(isSameOrigin&&url.pathname.endsWith('/data/movies.json')){event.respondWith(fetch(event.request).then(response=>response.ok?enrichMovies(response):response).catch(()=>caches.match(event.request).then(cached=>cached||caches.match(OFFLINE_URL))));return}if(isSameOrigin&&isDocument){event.respondWith(fetch(event.request,{cache:'no-store'}).then(response=>response).catch(()=>caches.match(event.request).then(cached=>cached||caches.match(OFFLINE_URL))));return}event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{if(response.ok&&isSameOrigin){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy))}return response}).catch(()=>caches.match(OFFLINE_URL)))});

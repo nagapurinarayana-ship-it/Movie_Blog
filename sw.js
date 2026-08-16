@@ -1,4 +1,4 @@
-const CACHE_NAME = 'movieblog-v16-live-data-white';
+const CACHE_NAME = 'movieblog-v17-boxoffice-defaults-white';
 const BASE = new URL('./', self.registration.scope).pathname;
 const OFFLINE_URL = `${BASE}offline.html`;
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';

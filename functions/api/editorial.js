@@ -3,7 +3,7 @@ const CACHE=new Map(),TTL=600000;
 function decode(s=''){return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#x27;/g,"'")}
 function tag(b,n){const m=b.match(new RegExp(`<${n}[^>]*>([\\s\\S]*?)</${n}>`,'i'));return m?decode(m[1].trim()):''}
 function strip(s){return decode(s).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}
-function items(xml,source){return[...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map(m=>m[1]).map(b=>({title:strip(tag(b,'title')),description:strip(tag(b,'description')),url:tag(b,'link'),pubDate:tag(b,'pubDate'),source})).filter(x=>x.title&&x.url)}
+function items(xml,feedSource){return[...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map(m=>m[1]).map(b=>({title:strip(tag(b,'title')),description:strip(tag(b,'description')),url:tag(b,'link'),pubDate:tag(b,'pubDate'),source:strip(tag(b,'source'))||feedSource})).filter(x=>x.title&&x.url)}
 function rss(q){return`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-IN&gl=IN&ceid=IN:en`}
 async function feed(source,q){const r=await fetch(rss(q),{headers:{accept:'application/rss+xml, application/xml, text/xml'}});if(!r.ok)throw Error(`${source} ${r.status}`);return items(await r.text(),source)}
 function unique(a){const s=new Set();return a.filter(x=>{const k=x.title.toLowerCase().replace(/[^a-z0-9]+/g,' ');if(s.has(k))return false;s.add(k);return true})}

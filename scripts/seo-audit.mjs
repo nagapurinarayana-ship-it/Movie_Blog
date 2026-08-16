@@ -1,14 +1,13 @@
 import { readFile } from 'node:fs/promises';
 
-// Canonical public routes. The repository may retain legacy .html files for
-// compatibility, but sitemap coverage is checked against the clean URLs used
-// by canonical tags and internal navigation.
+// Canonical public routes. Legacy .html files can remain for compatibility;
+// this audit follows the clean URLs used by canonical tags and navigation.
 const requiredRoutes = [
   { file: 'pages/search.html', url: '/pages/search' },
   { file: 'pages/trending.html', url: '/pages/trending' },
   { file: 'pages/news.html', url: '/pages/news' },
   { file: 'pages/category.html', url: '/pages/category' },
-  { file: 'pages/box-office.html', url: '/pages/box-office' },
+  { file: 'pages/box-office-live.html', url: '/pages/box-office-live' },
   { file: 'pages/ott.html', url: '/pages/ott' },
   { file: 'pages/movie.html', url: '/pages/movie' },
   { file: 'pages/person.html', url: '/pages/person' },

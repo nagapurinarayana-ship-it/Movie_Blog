@@ -1,314 +1,147 @@
-/* MovieBlog V2 — live TMDB catalog + local editorial data */
+/* MovieBlog homepage — daily trends + regional movie discovery + OTT picks */
 (() => {
-  const LOCAL_DATA_URL = './data/movies.json';
-  const LOCAL_GENRE_URL = './data/genres.json';
-  const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
-  const pageSize = 20;
-
-  let movies = [];
-  let genres = [];
-  let filtered = [];
-  let page = 0;
-  let loading = false;
-  let sentinel = null;
-  let observer = null;
-
+  const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
   const grid = document.getElementById('movieGrid');
-  const loadingEl = document.getElementById('loading');
-  const searchBox = document.getElementById('searchBox');
-  const suggestions = document.getElementById('suggestions');
-  const filterGenre = document.getElementById('filterGenre');
-  const sortBy = document.getElementById('sortBy');
-  const scrollTop = document.getElementById('scrollTop');
-  const favBtn = document.getElementById('favBtn');
+  const loading = document.getElementById('loading');
   const cardTemplate = document.getElementById('cardTemplate');
-  const themeToggle = document.getElementById('themeToggle');
+  const trendFeed = document.getElementById('trendFeed');
+  const viralFeed = document.getElementById('viralFeed');
+  const buzzFeed = document.getElementById('buzzFeed');
+  const watchFeed = document.getElementById('watchFeed');
+  const dailyDate = document.getElementById('dailyDate');
   const menuToggle = document.getElementById('menuToggle');
   const mainNav = document.getElementById('mainNav');
-
-  const LS_FAV = 'movieblog:favorites:v2';
-  const LS_THEME = 'movieblog:theme:v2';
+  const themeToggle = document.getElementById('themeToggle');
+  const favoritesKey = 'movieblog:favorites:v3';
   let favorites = new Set();
-  try { favorites = new Set(JSON.parse(localStorage.getItem(LS_FAV) || '[]')); } catch (_) {}
+  try { favorites = new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch (_) {}
 
-  function saveFavs() { localStorage.setItem(LS_FAV, JSON.stringify([...favorites])); }
-  function movieUrl(id) { return `./pages/movie?id=${encodeURIComponent(id)}`; }
-  function formatMeta(m) { return `${m.releaseDate || 'Release TBA'} • ${m.runtime || 0} min • ⭐ ${m.rating || 0}`; }
+  const normalize = movie => ({
+    ...movie,
+    id: movie.id || `${movie.title || 'movie'}-${movie.release_date || ''}`,
+    title: movie.title || movie.name || 'Untitled',
+    poster: movie.poster || (movie.poster_path ? IMAGE_BASE + movie.poster_path : ''),
+    overview: movie.overview || '',
+    releaseDate: String(movie.releaseDate || movie.release_date || ''),
+    rating: Number(movie.rating || movie.vote_average || 0)
+  });
 
-  function normalizeMovie(movie) {
-    return {
-      ...movie,
-      id: movie.id || movie.imdbID || `${movie.title || 'movie'}-${movie.year || ''}`,
-      title: movie.title || movie.name || 'Untitled',
-      poster: movie.poster || movie.posterURL || (movie.poster_path ? TMDB_IMAGE_BASE + movie.poster_path : '') || movie.imageUrl || '',
-      overview: movie.overview || movie.plot || movie.description || movie.storyline || '',
-      releaseDate: String(movie.releaseDate || movie.release_date || movie.year || ''),
-      rating: Number(movie.rating || movie.vote_average || movie.imdbRating || 0),
-      runtime: Number(movie.runtime || movie.runtimeMinutes || 0),
-      cast: Array.isArray(movie.cast) ? movie.cast : (Array.isArray(movie.actors) ? movie.actors : []),
-      genres: Array.isArray(movie.genres) ? movie.genres : (Array.isArray(movie.genre) ? movie.genre : [])
-    };
+  const movieUrl = id => `./pages/movie?id=${encodeURIComponent(id)}`;
+  const esc = value => String(value || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  async function api(url) {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+    return response.json();
   }
 
-  async function tmdbPopular(pageNumber = 1) {
-    const response = await fetch(`./api/tmdb?mode=popular&page=${pageNumber}&language=en-US`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`TMDB popular returned ${response.status}`);
-    const data = await response.json();
-    return Array.isArray(data.results) ? data.results.map(normalizeMovie) : [];
-  }
-
-  function mergeMovies(localMovies, liveMovies) {
-    const merged = [];
-    const seen = new Set();
-    for (const movie of [...liveMovies, ...localMovies]) {
-      const key = String(movie.id || movie.title || '').toLowerCase();
-      if (!key || seen.has(key)) continue;
-      seen.add(key);
-      merged.push(movie);
-    }
-    return merged;
-  }
-
-  function createCard(movie) {
-    const tpl = cardTemplate.content.cloneNode(true);
-    const article = tpl.querySelector('article');
-    const img = tpl.querySelector('.poster');
-    const title = tpl.querySelector('.title');
-    const meta = tpl.querySelector('.meta');
-    const overview = tpl.querySelector('.overview');
-    const fav = tpl.querySelector('.fav-toggle');
-
-    article.dataset.id = movie.id;
-    article.setAttribute('aria-label', `Open ${movie.title}`);
-    img.src = movie.poster || './assets/placeholder.png';
-    img.alt = `${movie.title} poster`;
-    title.textContent = movie.title || 'Untitled';
-    meta.textContent = formatMeta(movie);
-    overview.textContent = movie.overview || 'Movie information will be added soon.';
-
-    if (favorites.has(movie.id)) {
-      fav.textContent = '❤️';
-      fav.setAttribute('aria-pressed', 'true');
-    }
-    fav.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (favorites.has(movie.id)) {
-        favorites.delete(movie.id);
-        fav.textContent = '♡';
-        fav.setAttribute('aria-pressed', 'false');
-      } else {
-        favorites.add(movie.id);
-        fav.textContent = '❤️';
-        fav.setAttribute('aria-pressed', 'true');
-      }
-      saveFavs();
+  function renderMovieCards(items) {
+    if (!grid || !cardTemplate) return;
+    grid.querySelectorAll('.card').forEach(node => node.remove());
+    loading.style.display = items.length ? 'none' : 'block';
+    if (!items.length) { loading.textContent = 'No movies available right now.'; return; }
+    const fragment = document.createDocumentFragment();
+    items.slice(0, 5).map(normalize).forEach(movie => {
+      const tpl = cardTemplate.content.cloneNode(true);
+      const article = tpl.querySelector('article');
+      const img = tpl.querySelector('.poster');
+      const title = tpl.querySelector('.title');
+      const meta = tpl.querySelector('.meta');
+      const overview = tpl.querySelector('.overview');
+      const fav = tpl.querySelector('.fav-toggle');
+      article.dataset.id = movie.id;
+      img.src = movie.poster || './assets/placeholder.png';
+      img.alt = `${movie.title} poster`;
+      title.textContent = movie.title;
+      meta.textContent = `${movie.releaseDate ? movie.releaseDate.slice(0,4) : 'TBA'} · ⭐ ${movie.rating ? movie.rating.toFixed(1) : '—'}`;
+      overview.textContent = movie.overview;
+      if (favorites.has(String(movie.id))) { fav.textContent = '♥'; fav.setAttribute('aria-pressed','true'); }
+      fav.addEventListener('click', event => {
+        event.stopPropagation();
+        const id = String(movie.id);
+        if (favorites.has(id)) { favorites.delete(id); fav.textContent = '♡'; fav.setAttribute('aria-pressed','false'); }
+        else { favorites.add(id); fav.textContent = '♥'; fav.setAttribute('aria-pressed','true'); }
+        localStorage.setItem(favoritesKey, JSON.stringify([...favorites]));
+      });
+      const open = () => { window.location.href = movieUrl(movie.id); };
+      article.addEventListener('click', open);
+      article.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
+      fragment.appendChild(tpl);
     });
-
-    const open = () => { window.location.href = movieUrl(movie.id); };
-    article.addEventListener('click', open);
-    article.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        open();
-      }
-    });
-    return tpl;
+    grid.insertBefore(fragment, loading);
   }
 
-  function ensureSentinel() {
-    if (sentinel && sentinel.isConnected) return;
-    sentinel = document.createElement('div');
-    sentinel.id = 'loadMoreSentinel';
-    sentinel.setAttribute('aria-hidden', 'true');
-    grid.appendChild(sentinel);
-    if ('IntersectionObserver' in window) {
-      observer?.disconnect();
-      observer = new IntersectionObserver((entries) => {
-        if (entries[0]?.isIntersecting) renderPage();
-      }, { rootMargin: '500px' });
-      observer.observe(sentinel);
-    }
-  }
-
-  function renderPage() {
-    if (loading) return;
-    const start = page * pageSize;
-    const slice = filtered.slice(start, start + pageSize);
-    if (!slice.length) {
-      loadingEl.style.display = page === 0 ? 'block' : 'none';
-      if (page === 0) loadingEl.textContent = movies.length ? 'No movies match this search.' : 'No movies are available yet.';
-      return;
-    }
-
-    loading = true;
-    loadingEl.style.display = 'block';
-    const frag = document.createDocumentFragment();
-    slice.forEach(movie => frag.appendChild(createCard(movie)));
-    grid.insertBefore(frag, loadingEl);
-    page += 1;
-    loading = false;
-
-    if (page * pageSize >= filtered.length) {
-      loadingEl.style.display = 'none';
-      observer?.disconnect();
-    } else {
-      loadingEl.style.display = 'block';
-      loadingEl.textContent = 'Loading more…';
-      ensureSentinel();
-    }
-  }
-
-  function resetPagination() {
-    observer?.disconnect();
-    sentinel = null;
-    page = 0;
-    grid.innerHTML = '';
-    grid.appendChild(loadingEl);
-    loadingEl.textContent = 'Loading movies…';
-    renderPage();
-    if (filtered.length > pageSize) ensureSentinel();
-  }
-
-  function applyFilters() {
-    const genre = filterGenre.value;
-    const sort = sortBy.value;
-    filtered = movies.slice();
-    if (genre !== 'all') filtered = filtered.filter(movie => (movie.genres || []).includes(genre));
-    if (sort === 'latest') filtered.sort((a, b) => String(b.releaseDate || '').localeCompare(String(a.releaseDate || '')));
-    if (sort === 'rating') filtered.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
-    resetPagination();
-  }
-
-  function applyTextFilter(query) {
-    const q = query.toLowerCase();
-    filtered = movies.filter(movie => [movie.title, movie.overview, ...(movie.cast || []), ...(movie.genres || [])].join(' ').toLowerCase().includes(q));
-    resetPagination();
-  }
-
-  function populateGenres() {
-    filterGenre.innerHTML = '<option value="all">All Genres</option>';
-    const values = genres.map(g => typeof g === 'string' ? g : g?.name).filter(Boolean);
-    [...new Set(values)].sort().forEach(name => {
-      const option = document.createElement('option');
-      option.value = name;
-      option.textContent = name;
-      filterGenre.appendChild(option);
-    });
-  }
-
-  async function loadLocalData() {
-    const [dataResponse, genreResponse] = await Promise.all([
-      fetch(LOCAL_DATA_URL, { cache: 'no-store' }),
-      fetch(LOCAL_GENRE_URL, { cache: 'no-store' })
-    ]);
-    const data = dataResponse.ok ? await dataResponse.json() : [];
-    const genreData = genreResponse.ok ? await genreResponse.json() : [];
-    return { data: Array.isArray(data) ? data : [], genres: Array.isArray(genreData) ? genreData : [] };
-  }
-
-  function featuredMovie() {
-    const target = document.getElementById('featured');
-    const pick = movies[0];
-    if (!target || !pick) return;
-    target.innerHTML = '';
-    const hero = document.createElement('div');
-    hero.className = 'hero-card';
-    const img = document.createElement('img');
-    img.src = pick.poster || './assets/placeholder.png';
-    img.alt = `${pick.title} poster`;
-    img.loading = 'eager';
-    const body = document.createElement('div');
-    body.className = 'hero-card-body';
-    const heading = document.createElement('h3');
-    heading.textContent = pick.title;
-    const meta = document.createElement('p');
-    meta.textContent = `⭐ ${pick.rating || 0} • ${pick.releaseDate || 'Release TBA'}`;
-    const text = document.createElement('p');
-    text.textContent = pick.overview || 'Explore the movie details on MovieBlog.';
-    const link = document.createElement('a');
-    link.className = 'icon-btn';
-    link.href = movieUrl(pick.id);
-    link.textContent = 'View details';
-    body.append(heading, meta, text, link);
-    hero.append(img, body);
-    target.appendChild(hero);
-  }
-
-  async function load() {
-    loadingEl.textContent = 'Loading movies from TMDB…';
+  async function loadRegional(language) {
     try {
-      const local = await loadLocalData().catch(() => ({ data: [], genres: [] }));
-      const live = await tmdbPopular(1);
-      movies = mergeMovies(local.data.map(normalizeMovie), live);
-      genres = [...new Set([
-        ...local.genres.map(g => typeof g === 'string' ? g : g?.name).filter(Boolean),
-        ...movies.flatMap(movie => movie.genres || [])
-      ])].sort();
-      populateGenres();
-      filtered = movies.slice();
-      featuredMovie();
-      resetPagination();
-    } catch (error) {
-      try {
-        const local = await loadLocalData();
-        movies = local.data.map(normalizeMovie);
-        genres = local.genres;
-        populateGenres();
-        filtered = movies.slice();
-        featuredMovie();
-        resetPagination();
-      } catch (_) {
-        loadingEl.textContent = 'Movies could not be loaded. Please try again.';
-      }
+      const data = await api(`./api/tmdb?mode=regional&original_language=${encodeURIComponent(language)}&region=IN&language=en-US&page=1`);
+      renderMovieCards(Array.isArray(data.results) ? data.results : []);
+    } catch (_) {
+      loading.style.display = 'block'; loading.textContent = 'Movie data is temporarily unavailable.';
     }
   }
 
-  searchBox?.addEventListener('input', (event) => {
-    const q = event.target.value.trim().toLowerCase();
-    if (!q) {
-      suggestions.style.display = 'none';
-      suggestions.innerHTML = '';
-      applyFilters();
-      return;
-    }
-    const matches = movies.filter(movie => [movie.title, ...(movie.cast || []), ...(movie.genres || [])].join(' ').toLowerCase().includes(q)).slice(0, 8);
-    suggestions.innerHTML = '';
-    matches.forEach(movie => {
-      const item = document.createElement('li');
-      item.textContent = `${movie.title}${movie.releaseDate ? ` (${movie.releaseDate})` : ''}`;
-      item.tabIndex = 0;
-      item.addEventListener('click', () => { window.location.href = movieUrl(movie.id); });
-      item.addEventListener('keydown', event => { if (event.key === 'Enter') window.location.href = movieUrl(movie.id); });
-      suggestions.appendChild(item);
-    });
-    suggestions.style.display = matches.length ? 'block' : 'none';
-    applyTextFilter(q);
-  });
-
-  suggestions?.addEventListener('keydown', event => { if (event.key === 'Escape') { suggestions.style.display = 'none'; searchBox?.focus(); } });
-  filterGenre?.addEventListener('change', applyFilters);
-  sortBy?.addEventListener('change', applyFilters);
-
-  menuToggle?.addEventListener('click', () => {
-    const open = mainNav.classList.toggle('is-open');
-    menuToggle.setAttribute('aria-expanded', String(open));
-  });
-
-  themeToggle?.addEventListener('click', () => {
-    const light = document.body.classList.toggle('light');
-    themeToggle.setAttribute('aria-pressed', String(light));
-    localStorage.setItem(LS_THEME, light ? 'light' : 'dark');
-  });
-  if (localStorage.getItem(LS_THEME) === 'light') {
-    document.body.classList.add('light');
-    themeToggle?.setAttribute('aria-pressed', 'true');
+  function trendItem(item, index) {
+    const title = esc(item.title);
+    const url = `./pages/trending?topic=${encodeURIComponent(item.title || '')}`;
+    return `<article class="trend-item"><div class="trend-rank">${String(index + 1).padStart(2,'0')}</div><a href="${url}"><div class="trend-title">${title}</div><div class="trend-meta">${esc(item.newsSources?.[0] || 'Trending in India')} · ${esc(item.traffic || 'rising interest')}</div></a><div class="trend-score">${Number(item.score || 0)} Pulse</div></article>`;
   }
 
-  window.addEventListener('scroll', () => { if (scrollTop) scrollTop.style.display = window.scrollY > 500 ? 'block' : 'none'; }, { passive: true });
-  scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  function isBuzz(item) {
+    const text = `${item.title || ''} ${item.description || ''}`.toLowerCase();
+    return /rumou?r|dating|relationship|wedding|marriage|breakup|spotted|fans think|reportedly|joins|cast as|linked to/.test(text);
+  }
 
-  favBtn?.addEventListener('click', event => { event.preventDefault(); window.location.href = './pages/search?fav=1'; });
+  function storyItem(item, index, label) {
+    const title = esc(item.title);
+    return `<article class="story-item"><div class="story-number">${String(index + 1).padStart(2,'0')}</div><div><a href="./pages/trending?topic=${encodeURIComponent(item.title || '')}"><h3>${title}</h3></a><p><strong>${label}</strong> · ${esc(item.description || 'A fast-moving entertainment topic worth watching.')}</p></div></article>`;
+  }
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
-  document.addEventListener('DOMContentLoaded', load);
+  async function loadTrends() {
+    try {
+      const data = await api('./api/trends');
+      const all = Array.isArray(data.trends) ? data.trends : [];
+      const entertainment = all.filter(item => item.relevance !== 'low');
+      const trends = (entertainment.length ? entertainment : all).slice(0, 8);
+      trendFeed.innerHTML = trends.length ? trends.map(trendItem).join('') : '<div class="loading">No strong entertainment trend is available right now.</div>';
+      const buzz = all.filter(isBuzz).slice(0, 4);
+      buzzFeed.innerHTML = buzz.length ? buzz.map((item,i) => `<div class="mini-item"><span>Rumour / buzz</span><h3><a href="./pages/trending?topic=${encodeURIComponent(item.title || '')}">${esc(item.title)}</a></h3></div>`).join('') : '<div class="mini-item"><span>Public buzz</span><h3>Fresh celebrity and movie rumours will appear here as they start trending.</h3></div>';
+      const viral = all.filter(item => !isBuzz(item)).slice(3, 8);
+      viralFeed.innerHTML = viral.length ? viral.map((item,i) => storyItem(item,i,'Viral')).join('') : '<div class="loading">Viral cinema stories will appear as new signals emerge.</div>';
+    } catch (_) {
+      trendFeed.innerHTML = '<div class="loading">Trending data is temporarily unavailable.</div>';
+      viralFeed.innerHTML = '<div class="loading">Viral cinema data is temporarily unavailable.</div>';
+      buzzFeed.innerHTML = '<div class="mini-item"><span>Public buzz</span><h3>Entertainment buzz will refresh when trend data is available.</h3></div>';
+    }
+  }
+
+  function renderWatch(items) {
+    if (!watchFeed) return;
+    const movies = items.slice(0,5).map(normalize);
+    if (!movies.length) { watchFeed.innerHTML = '<div class="loading">OTT picks are being refreshed.</div>'; return; }
+    watchFeed.innerHTML = movies.map(movie => `<article class="watch-card"><a href="${movieUrl(movie.id)}"><img loading="lazy" src="${movie.poster || './assets/placeholder.png'}" alt="${esc(movie.title)} poster"></a><div class="watch-body"><span class="watch-tag">Worth watching</span><h3><a href="${movieUrl(movie.id)}">${esc(movie.title)}</a></h3><p>⭐ ${movie.rating ? movie.rating.toFixed(1) : '—'} · Streaming availability in India</p></div></article>`).join('');
+  }
+
+  async function loadWatch() {
+    try { const data = await api('./api/tmdb?mode=streaming&region=IN&language=en-US&page=1'); renderWatch(Array.isArray(data.results) ? data.results : []); }
+    catch (_) { watchFeed.innerHTML = '<div class="loading">OTT recommendations are temporarily unavailable.</div>'; }
+  }
+
+  function setDate() {
+    if (!dailyDate) return;
+    dailyDate.textContent = new Intl.DateTimeFormat('en-IN', { day:'numeric', month:'short', year:'numeric', timeZone:'Asia/Kolkata' }).format(new Date());
+  }
+
+  document.querySelectorAll('.region-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.region-tab').forEach(other => { other.classList.remove('is-active'); other.setAttribute('aria-selected','false'); });
+    tab.classList.add('is-active'); tab.setAttribute('aria-selected','true');
+    loadRegional(tab.dataset.region);
+  }));
+
+  menuToggle?.addEventListener('click', () => { const open = mainNav.classList.toggle('is-open'); menuToggle.setAttribute('aria-expanded', String(open)); });
+  themeToggle?.addEventListener('click', () => { document.body.classList.toggle('night'); });
+
+  setDate();
+  loadRegional('te');
+  loadTrends();
+  loadWatch();
 })();

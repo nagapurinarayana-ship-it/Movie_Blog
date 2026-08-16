@@ -45,6 +45,20 @@ export async function onRequestGet(context) {
   try {
     const response = await fetch(`${base}${endpoint}?${params.toString()}`, { headers: { Accept: 'application/json' } });
     const text = await response.text();
+    if (mode === 'streaming' && response.ok) {
+      const data = JSON.parse(text);
+      const results = Array.isArray(data.results) ? data.results.slice(0, 8) : [];
+      const enriched = await Promise.all(results.map(async movie => {
+        try {
+          const detail = await fetch(`${base}/movie/${movie.id}?api_key=${encodeURIComponent(apiKey)}&language=${encodeURIComponent(language)}&append_to_response=watch/providers`, { headers: { Accept: 'application/json' } });
+          if (!detail.ok) return movie;
+          const detailData = await detail.json();
+          const providers = detailData?.['watch/providers']?.results?.IN?.flatrate || [];
+          return { ...movie, providers: providers.slice(0, 3).map(provider => provider.provider_name) };
+        } catch (_) { return movie; }
+      }));
+      return new Response(JSON.stringify({ ...data, results: enriched }), { status: response.status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=900, stale-while-revalidate=3600' } });
+    }
     return new Response(text, { status: response.status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=900, stale-while-revalidate=3600' } });
   } catch (error) {
     return new Response(JSON.stringify({ error: 'TMDB request failed', details: String(error) }), { status: 502, headers: { 'Content-Type': 'application/json' } });

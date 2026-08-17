@@ -20,7 +20,7 @@
     frame.height = String(ad.height);
     frame.loading = 'eager';
     frame.style.cssText = 'display:block;width:' + ad.width + 'px;max-width:100%;height:' + ad.height + 'px;margin:8px auto 0;border:0;overflow:hidden';
-    frame.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
+    frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
     frame.setAttribute('referrerpolicy','no-referrer-when-downgrade');
     frame.srcdoc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>atOptions={key:"' + ad.key + '",format:"iframe",height:' + ad.height + ',width:' + ad.width + ',params:{}};<\/script><script src="https://www.highperformanceformat.com/' + ad.key + '/invoke.js"><\/script></body></html>';
     const children = [label, frame];
@@ -35,7 +35,7 @@
       nativeFrame.height = '280';
       nativeFrame.loading = 'lazy';
       nativeFrame.style.cssText = 'display:block;width:100%;max-width:760px;height:280px;margin:20px auto 0;border:0;overflow:hidden';
-      nativeFrame.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
+      nativeFrame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
       nativeFrame.setAttribute('referrerpolicy','no-referrer-when-downgrade');
       nativeFrame.srcdoc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:auto;background:transparent}</style></head><body><script async data-cfasync="false" src="https://pl30851771.effectivecpmnetwork.com/a96924b820785181df59f6efdfa8719f/invoke.js"><\/script><div id="container-a96924b820785181df59f6efdfa8719f"></div></body></html>';
       children.push(nativeLabel, nativeFrame);

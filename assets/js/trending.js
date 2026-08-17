@@ -31,6 +31,22 @@
     return element;
   }
 
+  function topicDestination(topic) {
+    const raw = String(topic || '').trim();
+    const isBoxOffice = /\bbox office\b/i.test(raw);
+    const cleaned = raw
+      .replace(/\bbox office(?: collection)?(?: day \d+)?\b/gi, ' ')
+      .replace(/\bott(?: release(?: date)?)?\b/gi, ' ')
+      .replace(/\bstreaming(?: release(?: date)?)?\b/gi, ' ')
+      .replace(/\b(latest|today|news|update|updates)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || raw;
+
+    return isBoxOffice
+      ? { url: `./box-office-live?q=${encodeURIComponent(cleaned)}`, label: 'View box-office reports' }
+      : { url: `./search?q=${encodeURIComponent(cleaned)}`, label: 'Find movie details' };
+  }
+
   function selectedRows() {
     const selected = filter?.value || 'all';
     let rows = selected === 'all'
@@ -47,14 +63,17 @@
 
     if (match) return [match];
 
+    const destination = topicDestination(requestedTopic);
+
     return [{
       title: requestedTopic,
       headline: requestedTopic,
       score: null,
       relevance: 'medium',
       bucket: 'trending',
-      explanation: 'This topic was selected from MovieBlog’s latest homepage feed. Open MovieBlog Search for related movies, cast details and current entertainment information.',
-      openUrl: `./search?q=${encodeURIComponent(requestedTopic)}`,
+      explanation: 'This topic was selected from MovieBlog’s latest homepage feed. Continue to the most relevant MovieBlog section for current details.',
+      openUrl: destination.url,
+      actionLabel: destination.label,
       synthetic: true
     }];
   }
@@ -120,7 +139,7 @@
       link.href = target;
       link.className = 'secondary-btn';
       link.textContent = item.synthetic
-        ? 'Search MovieBlog'
+        ? (item.actionLabel || 'Continue on MovieBlog')
         : item.newsUrls?.length
           ? 'Read Related Story'
           : 'Explore Topic';

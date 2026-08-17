@@ -43,25 +43,25 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://movie-blog-bdt.pages.dev/pages/contact</loc>
+    <loc>https://movie-blog-bdt.pages.dev/pages/contact.html</loc>
     <lastmod>2026-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://movie-blog-bdt.pages.dev/pages/privacy</loc>
+    <loc>https://movie-blog-bdt.pages.dev/pages/privacy.html</loc>
     <lastmod>2026-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://movie-blog-bdt.pages.dev/pages/terms</loc>
+    <loc>https://movie-blog-bdt.pages.dev/pages/terms.html</loc>
     <lastmod>2026-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://movie-blog-bdt.pages.dev/pages/disclaimer</loc>
+    <loc>https://movie-blog-bdt.pages.dev/pages/disclaimer.html</loc>
     <lastmod>2026-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>

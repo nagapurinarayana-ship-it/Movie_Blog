@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const POPUNDER_SRC = 'https://pl30851769.effectivecpmnetwork.com/1c/c7/e4/1cc7e4e406db4b9476e0f28559c0b9a8.js';
+  const SOCIAL_BAR_SRC = 'https://pl30851772.effectivecpmnetwork.com/67/81/f1/6781f148df67e59df827d9028b51be69.js';
   const formats = {
     desktop: { key: 'b4b560626f94ccb0ffe06b2047f809ab', width: 728, height: 90 },
     mobile: { key: '85d1302867474481d7c488ca8f3bf6ce', width: 320, height: 50 }
@@ -38,7 +40,19 @@
       nativeFrame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
       nativeFrame.setAttribute('referrerpolicy','no-referrer-when-downgrade');
       nativeFrame.srcdoc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:auto;background:transparent}</style></head><body><script async data-cfasync="false" src="https://pl30851771.effectivecpmnetwork.com/a96924b820785181df59f6efdfa8719f/invoke.js"><\/script><div id="container-a96924b820785181df59f6efdfa8719f"></div></body></html>';
-      children.push(nativeLabel, nativeFrame);
+      const extraLabel = document.createElement('span');
+      extraLabel.className = 'ad-label';
+      extraLabel.textContent = 'More sponsored offers';
+      const extraFrame = document.createElement('iframe');
+      extraFrame.title = 'More sponsored offers';
+      extraFrame.width = '100%';
+      extraFrame.height = '140';
+      extraFrame.loading = 'lazy';
+      extraFrame.style.cssText = 'display:block;width:100%;max-width:760px;height:140px;margin:20px auto 0;border:0;overflow:hidden';
+      extraFrame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
+      extraFrame.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+      extraFrame.srcdoc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;min-height:120px;overflow:hidden;background:transparent}</style></head><body><script src="' + POPUNDER_SRC + '"><\/script><script src="' + SOCIAL_BAR_SRC + '"><\/script></body></html>';
+      children.push(nativeLabel, nativeFrame, extraLabel, extraFrame);
     }
     host.replaceChildren(...children);
   }

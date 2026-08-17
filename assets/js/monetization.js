@@ -1,6 +1,4 @@
 (() => {
-  const POPUNDER = 'https://pl30851769.effectivecpmnetwork.com/1c/c7/e4/1cc7e4e406db4b9476e0f28559c0b9a8.js';
-  const SOCIAL_BAR = 'https://pl30851772.effectivecpmnetwork.com/67/81/f1/6781f148df67e59df827d9028b51be69.js';
   const NATIVE_SRC = 'https://pl30851771.effectivecpmnetwork.com/a96924b820785181df59f6efdfa8719f/invoke.js';
   const NATIVE_CONTAINER_PREFIX = 'movieblog-native-';
   const BANNER_468_SRC = 'https://www.highperformanceformat.com/63e6ab533495630055076eb684026b90/invoke.js';
@@ -39,11 +37,6 @@
     if (options.cfasync) script.dataset.cfasync = 'false';
     document.head.appendChild(script);
     return script;
-  }
-
-  function addGlobalScripts() {
-    addScript(POPUNDER);
-    addScript(SOCIAL_BAR);
   }
 
   function createHost(className = 'ad-slot-generated') {
@@ -190,7 +183,7 @@
       return;
     }
     autoCreateSlots();
-    addGlobalScripts();
+    // Redirect-capable popunders and social bars are intentionally disabled.
     document.querySelectorAll('[data-ad-slot]').forEach(host => {
       const placement = host.dataset.adSlot;
       if (placements[placement]) mountPlacement(host, placement);

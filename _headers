@@ -14,6 +14,9 @@
 /assets/css/*
   Cache-Control: public, max-age=31536000, immutable
 
+/assets/js/monetization.js
+  Cache-Control: public, max-age=300, must-revalidate
+
 /assets/js/*
   Cache-Control: public, max-age=31536000, immutable
 

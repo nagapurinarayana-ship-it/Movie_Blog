@@ -13,7 +13,7 @@
   },
   "rules": [
     "Keep at least one clear content area before the first ad placement.",
-    "Use one popunder and one social bar per page; do not duplicate global scripts.",
+    "Do not use popunders, social bars, forced redirects or automatic tab-opening ad formats.",
     "Use responsive 320x50 mobile and 728x90 desktop placements instead of forcing oversized banners onto small screens.",
     "Keep sidebar 300x250, 160x300 and 160x600 units desktop-only.",
     "Do not use deceptive buttons, fake download controls, or ads that obstruct primary content.",

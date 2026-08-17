@@ -30,4 +30,11 @@
     };
     setTimeout(paint,3000);setTimeout(paint,8000);setTimeout(paint,12000);
   }
+  if (!document.querySelector('script[data-movieblog-banners]')) {
+    const ads = document.createElement('script');
+    ads.src = base + 'assets/js/monetization.js?v=20260817-banner-only';
+    ads.defer = true;
+    ads.dataset.movieblogBanners = '1';
+    document.body.appendChild(ads);
+  }
 })();

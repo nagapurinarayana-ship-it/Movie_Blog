@@ -1,39 +1,80 @@
 import { readFile } from 'node:fs/promises';
 
-// Canonical public routes. Legacy .html files can remain for compatibility;
-// this audit follows the clean URLs used by canonical tags and navigation.
-const requiredRoutes = [
-  { file: 'pages/search.html', url: '/pages/search' },
-  { file: 'pages/trending.html', url: '/pages/trending' },
-  { file: 'pages/news.html', url: '/pages/news' },
-  { file: 'pages/category.html', url: '/pages/category' },
-  { file: 'pages/box-office-live.html', url: '/pages/box-office-live' },
-  { file: 'pages/ott.html', url: '/pages/ott' },
-  { file: 'pages/movie.html', url: '/pages/movie' },
-  { file: 'pages/person.html', url: '/pages/person' },
-  { file: 'pages/director.html', url: '/pages/director' }
+const requiredPages = [
+  'index.html',
+  'pages/search.html',
+  'pages/trending.html',
+  'pages/news.html',
+  'pages/category.html',
+  'pages/box-office-live.html',
+  'pages/ott.html',
+  'pages/movie.html',
+  'pages/person.html',
+  'pages/director.html'
 ];
 
-const htmlFiles = ['index.html', ...requiredRoutes.map(x => x.file)];
-let failed = false;
-const exists = async path => { try { await readFile(path, 'utf8'); return true; } catch (_) { return false; } };
+const sitemapUrls = [
+  'https://movie-blog-bdt.pages.dev/',
+  'https://movie-blog-bdt.pages.dev/pages/trending',
+  'https://movie-blog-bdt.pages.dev/pages/news',
+  'https://movie-blog-bdt.pages.dev/pages/category',
+  'https://movie-blog-bdt.pages.dev/pages/box-office-live',
+  'https://movie-blog-bdt.pages.dev/pages/ott'
+];
 
-for (const path of htmlFiles) {
-  if (!(await exists(path))) { failed = true; console.error(`FAIL missing ${path}`); continue; }
+const excludedSitemapUrls = [
+  'https://movie-blog-bdt.pages.dev/pages/search',
+  'https://movie-blog-bdt.pages.dev/pages/person',
+  'https://movie-blog-bdt.pages.dev/pages/director'
+];
+
+let failed = false;
+const exists = async path => {
+  try {
+    await readFile(path, 'utf8');
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+for (const path of requiredPages) {
+  if (!(await exists(path))) {
+    failed = true;
+    console.error(`FAIL missing ${path}`);
+    continue;
+  }
+
   const html = await readFile(path, 'utf8');
   for (const marker of ['<title>', 'name="description"', 'rel="canonical"']) {
-    if (!html.includes(marker)) { failed = true; console.error(`FAIL ${path}: missing ${marker}`); }
+    if (!html.includes(marker)) {
+      failed = true;
+      console.error(`FAIL ${path}: missing ${marker}`);
+    }
   }
   console.log(`PASS ${path}`);
 }
 
 const sitemap = await readFile('sitemap.xml', 'utf8');
-for (const route of requiredRoutes) {
-  if (!sitemap.includes(route.url)) { failed = true; console.error(`FAIL sitemap missing canonical route ${route.url}`); }
+for (const url of sitemapUrls) {
+  if (!sitemap.includes(`<loc>${url}</loc>`)) {
+    failed = true;
+    console.error(`FAIL sitemap missing canonical URL ${url}`);
+  }
+}
+
+for (const url of excludedSitemapUrls) {
+  if (sitemap.includes(`<loc>${url}</loc>`)) {
+    failed = true;
+    console.error(`FAIL sitemap contains non-indexable template URL ${url}`);
+  }
 }
 
 const robots = await readFile('robots.txt', 'utf8');
-if (!robots.includes('Sitemap:')) { failed = true; console.error('FAIL robots.txt missing Sitemap directive'); }
+if (!robots.includes('Sitemap:')) {
+  failed = true;
+  console.error('FAIL robots.txt missing Sitemap directive');
+}
 
 if (failed) process.exit(1);
 console.log('MovieBlog SEO audit passed.');

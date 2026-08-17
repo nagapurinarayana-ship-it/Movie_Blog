@@ -1,21 +1,20 @@
 {
   "schemaVersion": 2,
   "enabled": false,
-  "provider": "effectivecpm",
+  "provider": "disabled",
   "placements": {
-    "homeTop": true,
-    "homeMid": true,
-    "articleTop": true,
-    "articleMid": true,
-    "articleEnd": true,
-    "sidebar": true,
-    "sidebarTall": true
+    "homeTop": false,
+    "homeMid": false,
+    "articleTop": false,
+    "articleMid": false,
+    "articleEnd": false,
+    "sidebar": false,
+    "sidebarTall": false
   },
   "rules": [
-    "Keep at least one clear content area before the first ad placement.",
+    "Keep monetization disabled until a reviewed provider is configured.",
     "Do not use popunders, social bars, forced redirects or automatic tab-opening ad formats.",
-    "Use responsive 320x50 mobile and 728x90 desktop placements instead of forcing oversized banners onto small screens.",
-    "Keep sidebar 300x250, 160x300 and 160x600 units desktop-only.",
+    "Use only clearly labelled, non-obstructive placements that preserve primary content.",
     "Do not use deceptive buttons, fake download controls, or ads that obstruct primary content.",
     "Do not place advertising on Privacy, Terms, Disclaimer, Contact or About pages.",
     "Keep third-party ad code isolated from core MovieBlog application code."

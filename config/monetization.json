@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "enabled": true,
+  "enabled": false,
   "provider": "effectivecpm",
   "placements": {
     "homeTop": true,

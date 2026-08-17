@@ -26,6 +26,9 @@
 /assets/images/*
   Cache-Control: public, max-age=604800
 
+/config/monetization.json
+  Cache-Control: no-store
+
 /manifest.json
   Cache-Control: public, max-age=86400
 

@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  document.querySelectorAll('script[data-movieblog-banners="1"]').forEach((script) => script.remove());
   const formats = {
     desktop: { key: 'b4b560626f94ccb0ffe06b2047f809ab', width: 728, height: 90 },
     mobile: { key: '85d1302867474481d7c488ca8f3bf6ce', width: 320, height: 50 }

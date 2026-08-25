@@ -28,7 +28,7 @@ for (const marker of ['POPUNDER_SRC', 'SOCIAL_BAR_SRC', 'pl30851769', 'pl3085177
   }
 }
 
-for (const requiredMarker of ['highperformanceformat.com', 'pl30851771', 'Advertisement', 'Sponsored recommendations', 'sandbox']) {
+for (const requiredMarker of ['highperformanceformat.com', 'pl30851771', 'Advertisement', 'Sponsored recommendations', 'sandbox', 'data-movieblog-banners']) {
   if (!loader.includes(requiredMarker)) {
     throw new Error(`Missing reviewed monetization requirement: ${requiredMarker}`);
   }

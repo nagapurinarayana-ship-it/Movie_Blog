@@ -1,80 +1,108 @@
 {
   "opportunities": [
     {
-      "id": "awarapan-2-release-box-office-2026",
+      "id": "awarapan-2-day-12-box-office",
       "topic": "Awarapan 2",
-      "cluster": "movie-release-box-office",
+      "cluster": "box-office-tracking",
       "priority": 100,
       "status": "research",
-      "intent": ["release date", "cast", "review", "box office", "day 1 collection", "budget", "hit or flop"],
+      "intent": [
+        "day 12 collection",
+        "India net collection",
+        "worldwide collection",
+        "150 crore milestone"
+      ],
       "entityId": "awarapan-2-2026",
-      "whyNow": "The film releases on August 14, 2026 and current reporting shows it leading the advance-booking race for the Independence Day weekend.",
-      "sourceRefs": ["toi-awarapan-advance-2026-08-13"],
-      "publishGate": "Verify current figures and write original coverage before publishing."
+      "whyNow": "A current August 25 report places the film at ₹141.06 crore India net after Day 12, with worldwide gross nearing ₹200 crore.",
+      "sourceUrls": [
+        "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/box-office/awarapan-2-box-office-collection-day-12-live-emraan-hashmi-and-disha-patani-chases-rs-150-crore-india-net-as-worldwide-haul-nears-rs-200-crore-before-yashs-toxic-arrives/articleshow/133502153.cms"
+      ],
+      "asOf": "2026-08-25",
+      "publishGate": "Recheck the running total immediately before publication; label India net and worldwide gross separately."
     },
     {
-      "id": "batwara-1947-release-box-office-2026",
-      "topic": "Batwara 1947",
-      "cluster": "movie-release-box-office",
+      "id": "toxic-release-august-26-2026",
+      "topic": "Toxic: A Fairy Tale for Grown-Ups",
+      "cluster": "movie-release",
       "priority": 98,
       "status": "research",
-      "intent": ["release date", "cast", "review", "box office", "day 1 collection", "budget", "hit or flop"],
-      "entityId": "batwara-1947-2026",
-      "whyNow": "The film is part of the August 14, 2026 Independence Day release clash with Awarapan 2.",
-      "sourceRefs": ["toi-awarapan-batwara-clash-2026-08-13"],
-      "publishGate": "Verify current cast, release and collection data before publication."
+      "intent": [
+        "release date",
+        "cast",
+        "review",
+        "advance booking",
+        "day 1 box office"
+      ],
+      "entityId": "toxic-2026",
+      "whyNow": "The film is scheduled for theatrical release on August 26, making release-day coverage the next time-sensitive opportunity.",
+      "sourceUrls": [
+        "https://www.pinkvilla.com/entertainment/south/12-top-south-films-to-watch-in-theaters-for-august-2026-yash-starrer-toxic-to-suriyas-vishwanath-and-sons-1404725"
+      ],
+      "asOf": "2026-08-25",
+      "publishGate": "Verify release status, showtimes and any collection numbers on publication day."
     },
     {
-      "id": "awarapan-2-vs-batwara-1947",
-      "topic": "Awarapan 2 vs Batwara 1947",
-      "cluster": "movie-release-box-office",
-      "priority": 97,
+      "id": "ott-releases-august-24-30-2026",
+      "topic": "OTT releases this week: August 24–30",
+      "cluster": "ott-weekly",
+      "priority": 96,
       "status": "research",
-      "intent": ["advance booking", "opening day", "box office clash", "show count", "which movie to watch"],
-      "entityIds": ["awarapan-2-2026", "batwara-1947-2026"],
-      "whyNow": "The two films are releasing together on the Independence Day weekend and current reporting shows a measurable advance-booking gap.",
-      "sourceRefs": ["toi-awarapan-batwara-clash-2026-08-13"],
-      "publishGate": "Use dated, attributed figures and avoid predictions presented as facts."
+      "intent": [
+        "new OTT releases this week",
+        "Netflix new releases",
+        "Prime Video new releases",
+        "JioHotstar new releases"
+      ],
+      "whyNow": "A new weekly slate begins August 24, with titles scheduled across Netflix, Prime Video, JioHotstar and ZEE5.",
+      "sourceUrls": [
+        "https://www.gqindia.com/content/new-ott-releases-august-24-august-30-12-new-movies-and-shows-arriving-on-netflix-jiohotstar-and-more"
+      ],
+      "asOf": "2026-08-25",
+      "publishGate": "Confirm each title directly on its streaming platform before publishing availability."
     },
     {
-      "id": "spider-man-brand-new-day-india-box-office",
-      "topic": "Spider-Man: Brand New Day",
-      "cluster": "box-office-tracking",
-      "priority": 95,
-      "status": "research",
-      "intent": ["India box office", "Day 13 collection", "worldwide collection", "lifetime collection", "highest grossing Hollywood film India"],
-      "entityId": "spider-man-brand-new-day-2026",
-      "whyNow": "Current reporting says the film is nearing ₹520 crore gross in India on Day 13 and is entering its third weekend.",
-      "sourceRefs": ["toi-spiderman-day13-2026-08-13"],
-      "publishGate": "Keep India net/gross and worldwide numbers clearly separated and sourced."
-    },
-    {
-      "id": "spider-man-brand-new-day-vs-independence-day-releases",
-      "topic": "Spider-Man: Brand New Day vs Awarapan 2 vs Batwara 1947",
-      "cluster": "box-office-clash",
+      "id": "welcome-to-the-jungle-ott-2026",
+      "topic": "Welcome to the Jungle OTT",
+      "cluster": "ott-release",
       "priority": 92,
       "status": "research",
-      "intent": ["screens", "box office competition", "third weekend", "Independence Day releases"],
-      "entityIds": ["spider-man-brand-new-day-2026", "awarapan-2-2026", "batwara-1947-2026"],
-      "whyNow": "Current coverage explicitly frames the upcoming Hindi releases as competition for Spider-Man's third weekend.",
-      "sourceRefs": ["toi-spiderman-day13-2026-08-13"],
-      "publishGate": "Use reported show/screen information only; do not invent forecasts."
+      "intent": [
+        "OTT release date",
+        "where to watch",
+        "JioHotstar",
+        "cast"
+      ],
+      "entityId": "welcome-to-the-jungle-2026",
+      "whyNow": "Current listings report the film streaming on JioHotstar from August 21.",
+      "sourceUrls": [
+        "https://m.economictimes.com/news/india/new-ott-releases-this-weekend-9-new-movies-and-shows-coming-on-netflix-jiohotstar-prime-video-and-more/ott-releases-this-weekend/slideshow/133399281.cms"
+      ],
+      "asOf": "2026-08-25",
+      "publishGate": "Verify availability in the target region on JioHotstar before publication."
     },
     {
-      "id": "india-microdrama-entertainment-trend",
-      "topic": "Microdrama in India",
-      "cluster": "entertainment-trends",
+      "id": "global-box-office-2026-leaders",
+      "topic": "Highest-grossing movies of 2026",
+      "cluster": "box-office-ranking",
       "priority": 88,
       "status": "research",
-      "intent": ["what is microdrama", "best microdrama apps", "microdrama series India", "short episode entertainment"],
-      "whyNow": "A current industry report says microdrama is becoming a significant entertainment habit in India, with strong short-form episodic consumption.",
-      "sourceRefs": ["et-microdrama-india-2026-08-13"],
-      "publishGate": "Use the report's methodology and figures accurately; distinguish industry research from MovieBlog opinion."
+      "intent": [
+        "highest grossing movies 2026",
+        "worldwide box office 2026",
+        "Spider-Man Brand New Day box office"
+      ],
+      "whyNow": "Current worldwide rankings show major movement among the year's leading films.",
+      "sourceUrls": [
+        "https://www.boxofficemojo.com/"
+      ],
+      "asOf": "2026-08-25",
+      "publishGate": "Use timestamped figures and refresh them immediately before publication because totals are still changing."
     }
   ],
   "schemaVersion": 2,
+  "lastRefreshed": "2026-08-25",
   "workflow": [
-    "discover from Trending Radar",
+    "discover from current search and platform listings",
     "research and verify facts",
     "write original coverage",
     "link relevant entities",

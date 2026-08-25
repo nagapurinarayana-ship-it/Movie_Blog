@@ -5,42 +5,40 @@ const homepage = fs.readFileSync('index.html', 'utf8');
 const middleware = fs.readFileSync('functions/_middleware.js', 'utf8');
 const loader = fs.readFileSync('assets/js/monetization.js', 'utf8');
 
-const forbiddenNetworkMarkers = [
-  'effectivecpmnetwork.com',
-  'highperformanceformat.com',
-  'highperformancecpmgate.com',
-  'pl30851769',
-  'pl30851771',
-  'pl30851772'
-];
-
-if (config.enabled !== false || config.provider !== 'disabled') {
-  throw new Error('Monetization must remain disabled until a reviewed provider is configured.');
+if (config.enabled !== true || config.provider !== 'adsterra-safe') {
+  throw new Error('Reviewed safe monetization configuration must be enabled.');
 }
 
-if (Object.values(config.placements || {}).some(Boolean)) {
-  throw new Error('Every monetization placement must be disabled.');
+if (config.placements?.homeTop !== true) {
+  throw new Error('The labelled homepage placement must remain enabled.');
 }
 
-if (homepage.includes('monetization.js')) {
-  throw new Error('The homepage must not load the retired monetization script.');
+const scriptReferences = homepage.match(/assets\/js\/monetization\.js/g) || [];
+if (scriptReferences.length !== 1) {
+  throw new Error('The homepage must load exactly one monetization script.');
 }
 
 if (middleware.includes('monetization.js')) {
-  throw new Error('Cloudflare middleware must not inject the retired monetization script.');
+  throw new Error('Cloudflare middleware must not inject a second monetization script.');
 }
 
-for (const marker of forbiddenNetworkMarkers) {
+for (const marker of ['POPUNDER_SRC', 'SOCIAL_BAR_SRC', 'pl30851769', 'pl30851772', 'highperformancecpmgate.com']) {
   if (loader.includes(marker) || middleware.includes(marker)) {
-    throw new Error(`Retired ad-network marker remains executable: ${marker}`);
+    throw new Error(`Unsafe monetization marker remains executable: ${marker}`);
+  }
+}
+
+for (const requiredMarker of ['highperformanceformat.com', 'pl30851771', 'Advertisement', 'Sponsored recommendations', 'sandbox']) {
+  if (!loader.includes(requiredMarker)) {
+    throw new Error(`Missing reviewed monetization requirement: ${requiredMarker}`);
   }
 }
 
 const rules = Array.isArray(config.rules) ? config.rules.join(' ').toLowerCase() : '';
-for (const requiredRule of ['popunders', 'forced redirects', 'automatic tab-opening']) {
+for (const requiredRule of ['popunders', 'social bars', 'forced redirects', 'automatic tab-opening']) {
   if (!rules.includes(requiredRule)) {
     throw new Error(`Missing monetization safety rule: ${requiredRule}`);
   }
 }
 
-console.log('Monetization audit passed: retired redirecting network is disabled and not injected.');
+console.log('Monetization audit passed: one sandboxed banner/native loader with no popunder or social-bar code.');

@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 2,
-  "enabled": false,
-  "provider": "disabled",
+  "schemaVersion": 3,
+  "enabled": true,
+  "provider": "adsterra-safe",
   "placements": {
-    "homeTop": false,
+    "homeTop": true,
     "homeMid": false,
     "articleTop": false,
     "articleMid": false,
@@ -12,11 +12,10 @@
     "sidebarTall": false
   },
   "rules": [
-    "Keep monetization disabled until a reviewed provider is configured.",
+    "Allow only clearly labelled banner and native recommendation placements.",
     "Do not use popunders, social bars, forced redirects or automatic tab-opening ad formats.",
-    "Use only clearly labelled, non-obstructive placements that preserve primary content.",
     "Do not use deceptive buttons, fake download controls, or ads that obstruct primary content.",
     "Do not place advertising on Privacy, Terms, Disclaimer, Contact or About pages.",
-    "Keep third-party ad code isolated from core MovieBlog application code."
+    "Keep third-party ad code sandboxed and isolated from core MovieBlog application code."
   ]
 }

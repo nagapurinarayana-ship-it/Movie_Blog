@@ -1,7 +1,14 @@
 import { readFile } from 'node:fs/promises';
 
 const files = [
-  ['data/movies.json', value => Array.isArray(value) || Array.isArray(value?.movies)],
+  ['data/movies.json', value => {
+    const movies = Array.isArray(value) ? value : value?.movies;
+    return Array.isArray(movies) && movies.every(movie =>
+      movie && typeof movie.id === 'string' && typeof movie.title === 'string' &&
+      typeof (movie.release_date || movie.releaseDate) === 'string' &&
+      Array.isArray(movie.cast) && Array.isArray(movie.genres)
+    );
+  }],
   ['data/entities.json', value => Array.isArray(value?.actors) && Array.isArray(value?.directors)],
   ['data/articles.json', value => Array.isArray(value?.articles)],
   ['data/box-office.json', value => typeof value?.movies === 'object' && value?.movies !== null],

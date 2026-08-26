@@ -43,6 +43,16 @@
     }
     host.replaceChildren(...children);
   }
-  function init(){ document.querySelectorAll('[data-ad-slot]').forEach(render); }
+  function init(){
+    if (!document.querySelector('[data-ad-slot]')) {
+      const host = document.createElement('section');
+      host.className = 'ad-slot container section';
+      host.dataset.adSlot = 'sitewide';
+      const footer = document.querySelector('footer');
+      if (footer && footer.parentNode) footer.parentNode.insertBefore(host, footer);
+      else document.body.appendChild(host);
+    }
+    document.querySelectorAll('[data-ad-slot]').forEach(render);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

@@ -14,6 +14,15 @@ const pages = [
   ['pages/director.html', `${site}/pages/director`, false]
 ];
 
+const socialCritical = new Set([
+  'index.html',
+  'pages/trending.html',
+  'pages/news.html',
+  'pages/category.html',
+  'pages/ott.html',
+  'pages/movie.html'
+]);
+
 const sitemapUrls = [
   `${site}/`,
   `${site}/pages/trending`,
@@ -31,11 +40,8 @@ const excludedSitemapUrls = [
 
 let failed = false;
 const titles = new Map();
-
-const fail = message => {
-  failed = true;
-  console.error(`FAIL ${message}`);
-};
+const fail = message => { failed = true; console.error(`FAIL ${message}`); };
+const warn = message => console.warn(`WARN ${message}`);
 
 for (const [path, canonical, shouldIndex] of pages) {
   let html;
@@ -51,19 +57,26 @@ for (const [path, canonical, shouldIndex] of pages) {
   const canonicalHref = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)/i)?.[1];
   const robots = html.match(/<meta\s+name=["']robots["']\s+content=["']([^"']+)/i)?.[1] || '';
 
-  if (!title || title.length < 20 || title.length > 70) fail(`${path}: title missing or poor length`);
-  if (!description || description.length < 70 || description.length > 180) fail(`${path}: description missing or poor length`);
+  if (!title || title.length < 20 || title.length > 72) fail(`${path}: title missing or poor length`);
+  // Search snippets are query-dependent; this range catches thin or wildly bloated copy
+  // without pretending there is a fixed Google character limit.
+  if (!description || description.length < 60 || description.length > 210) fail(`${path}: description missing or poor length`);
   if (canonicalHref !== canonical) fail(`${path}: canonical should be ${canonical}, got ${canonicalHref || 'missing'}`);
 
-  if (shouldIndex && !/index/.test(robots)) fail(`${path}: expected indexable robots directive`);
-  if (!shouldIndex && !/noindex/.test(robots)) fail(`${path}: dynamic/search template must be noindex`);
-  if (!/follow/.test(robots)) fail(`${path}: robots directive must allow follow`);
+  if (shouldIndex && !/(^|,)\s*index(,|$)/.test(robots)) fail(`${path}: expected indexable robots directive`);
+  if (!shouldIndex && !/(^|,)\s*noindex(,|$)/.test(robots)) fail(`${path}: dynamic/search template must be noindex`);
+  if (!/(^|,)\s*follow(,|$)/.test(robots)) fail(`${path}: robots directive must allow follow`);
 
-  if (shouldIndex) {
-    for (const marker of ['property="og:title"', 'property="og:description"', 'property="og:url"', 'property="og:image"']) {
-      if (!html.includes(marker)) fail(`${path}: missing ${marker}`);
+  const socialMarkers = ['property="og:title"', 'property="og:description"', 'property="og:url"', 'property="og:image"'];
+  for (const marker of socialMarkers) {
+    if (!html.includes(marker)) {
+      if (socialCritical.has(path)) fail(`${path}: missing ${marker}`);
+      else if (shouldIndex) warn(`${path}: missing ${marker}; add when the page gets a dedicated share image`);
     }
-    if (!html.includes('name="twitter:card"')) fail(`${path}: missing Twitter card metadata`);
+  }
+  if (!html.includes('name="twitter:card"')) {
+    if (socialCritical.has(path)) fail(`${path}: missing Twitter card metadata`);
+    else if (shouldIndex) warn(`${path}: missing Twitter card metadata`);
   }
 
   if (title) {

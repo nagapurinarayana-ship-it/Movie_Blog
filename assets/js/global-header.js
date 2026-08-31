@@ -10,6 +10,48 @@
   const toggle=document.getElementById('menuToggle'),nav=document.getElementById('mainNav');
   toggle?.addEventListener('click',()=>{const open=nav.classList.toggle('is-open');toggle.setAttribute('aria-expanded',String(open));});
 
+  function addPopularSearches(){
+    if(document.querySelector('[data-movieblog-popular-searches]'))return;
+    let title='Popular movie and OTT searches in India';
+    let intro='Jump to current movie, streaming, box-office and entertainment pages using the same questions viewers commonly search.';
+    let navLinks=[
+      [base+'pages/trending','trending movies in India'],
+      [base+'pages/ott','new OTT releases this week'],
+      [base+'pages/telugu-ott','Telugu OTT releases this week'],
+      [base+'pages/box-office-live','box office collection today'],
+      [base+'pages/news','latest entertainment news'],
+      [base+'pages/search?q=movie+reviews','movie reviews'],
+      [base+'pages/search?q=web+series','new web series'],
+      [base+'pages/search?q=Telugu+movies','new Telugu movies']
+    ];
+    let topics=['OTT release date','where to watch online','cast and crew','trailer','movie rating','theatrical release date','celebrity news','upcoming movies 2026'];
+    if(path.endsWith('/telugu-ott')){
+      title='Popular Telugu OTT searches';
+      intro='Find current Telugu movies and series by release week, platform and title, with verified India streaming information where available.';
+      navLinks=[[base+'pages/telugu-ott','Telugu OTT releases this week'],[base+'pages/ott','all OTT releases this week'],[base+'pages/search?q=Telugu','search Telugu movies and series'],[base+'pages/trending','trending Telugu and Indian movies']];
+      topics=['new Telugu movies on OTT','Telugu web series','Telugu OTT release date','Netflix Telugu movies','Prime Video Telugu movies','JioHotstar Telugu releases','ZEE5 Telugu movies','where to watch Telugu movies'];
+    }else if(path.endsWith('/box-office-live')){
+      title='Popular box-office searches';
+      intro='Use source-labelled reports for current collections rather than treating a single fast-moving number as permanent.';
+      navLinks=[[base+'pages/box-office-live','box office collection today'],[base+'pages/trending','trending movies'],[base+'pages/search','search a movie'],[base+'pages/news','latest movie news']];
+      topics=['India box office collection','worldwide box office','day 1 collection','opening weekend collection','movie budget and collection','hit or flop','Tollywood box office','Bollywood box office'];
+    }else if(path.endsWith('/trending')){
+      title='Popular trending-movie searches';
+      topics=['trending movies today','viral movie news','new movie releases','upcoming movies','Tollywood trending','Bollywood trending','South Indian movies','what to watch tonight'];
+    }else if(path.endsWith('/news')){
+      title='Popular entertainment-news searches';
+      topics=['latest movie news','celebrity news','Tollywood news','Bollywood news','OTT news','movie release updates','casting news','trailer updates'];
+    }
+    const section=document.createElement('section');
+    section.dataset.movieblogPopularSearches='1';
+    section.className='container section';
+    section.setAttribute('aria-labelledby','movieblog-popular-searches-title');
+    section.innerHTML=`<div style="border:1px solid #e2e2e8;border-radius:18px;padding:20px;background:#fff"><p class="kicker">POPULAR SEARCHES</p><h2 id="movieblog-popular-searches-title">${title}</h2><p class="muted">${intro}</p><nav aria-label="Popular MovieBlog searches" style="display:flex;flex-wrap:wrap;gap:9px;margin:16px 0">${navLinks.map(([href,label])=>`<a href="${href}" style="display:inline-block;padding:8px 12px;border:1px solid #dddde5;border-radius:999px;text-decoration:none;font-weight:700">${label}</a>`).join('')}</nav><div aria-label="Related movie search topics" style="display:flex;flex-wrap:wrap;gap:7px">${topics.map(topic=>`<span style="padding:6px 9px;border-radius:999px;background:#f5f5f7;font-size:13px">${topic}</span>`).join('')}</div></div>`;
+    const footer=document.querySelector('footer');
+    if(footer&&footer.parentNode)footer.parentNode.insertBefore(section,footer);else document.body.appendChild(section);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addPopularSearches,{once:true});else addPopularSearches();
+
   // Box Office safety net: never leave the results page stuck on a source scan.
   if(path.endsWith('/box-office-live')){
     const fallback=[

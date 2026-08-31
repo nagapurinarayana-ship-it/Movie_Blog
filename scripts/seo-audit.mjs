@@ -9,6 +9,7 @@ const pages = [
   ['pages/category.html', `${site}/pages/category`, true],
   ['pages/box-office-live.html', `${site}/pages/box-office-live`, true],
   ['pages/ott.html', `${site}/pages/ott`, true],
+  ['pages/telugu-ott.html', `${site}/pages/telugu-ott`, true],
   ['pages/movie.html', `${site}/pages/movie`, true],
   ['pages/person.html', `${site}/pages/person`, false],
   ['pages/director.html', `${site}/pages/director`, false]
@@ -20,6 +21,7 @@ const socialCritical = new Set([
   'pages/news.html',
   'pages/category.html',
   'pages/ott.html',
+  'pages/telugu-ott.html',
   'pages/movie.html'
 ]);
 
@@ -29,7 +31,8 @@ const sitemapUrls = [
   `${site}/pages/news`,
   `${site}/pages/category`,
   `${site}/pages/box-office-live`,
-  `${site}/pages/ott`
+  `${site}/pages/ott`,
+  `${site}/pages/telugu-ott`
 ];
 
 const excludedSitemapUrls = [

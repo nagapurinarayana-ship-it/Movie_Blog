@@ -90,6 +90,12 @@ for (const [path, canonical, shouldIndex] of pages) {
   console.log(`PASS ${path}`);
 }
 
+const directorProfile = await readFile('pages/director.html', 'utf8')
+for (const marker of ['mode=person_search', 'mode=person&id=', 'combined_credits', 'Filmography', 'index,follow,max-image-preview:large']) {
+  if (!directorProfile.includes(marker)) fail('director profile route is missing dynamic detail support: ' + marker)
+}
+if (directorProfile.includes('innerHTML')) fail('director profile must render provider content with safe DOM APIs, not innerHTML')
+
 const sitemap = await readFile('sitemap.xml', 'utf8');
 for (const url of sitemapUrls) {
   if (!sitemap.includes(`<loc>${url}</loc>`)) fail(`sitemap missing canonical URL ${url}`);

@@ -1,4 +1,240 @@
 <!doctype html>
-<html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Director Movies & Filmography — MovieBlog</title><meta name="description" content="Explore movie director profiles, filmography and current cinema information on MovieBlog; individual profiles load from the verified entertainment catalog."><meta name="robots" content="noindex,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/director"><meta property="og:type" content="profile"><meta property="og:title" content="Director Movies & Filmography — MovieBlog"><meta property="og:description" content="Explore movie director profiles and filmography on MovieBlog."><meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/director"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../assets/css/ui.css"><link rel="stylesheet" href="../assets/css/light-only.css"></head><body><header class="nav"><div class="container nav-inner"><a href="../" class="logo">🎬 MovieBlog</a><a class="icon-btn" href="../pages/search">Search</a></div></header><main class="container section"><div id="entityRoot" aria-live="polite">Loading director…</div></main><footer class="site-footer"><div class="container"><a href="../">← Back to MovieBlog</a></div></footer><script src="../assets/js/global-header.js" defer></script><script src="../assets/js/entities.js" defer></script><script>
-(()=>{const root=document.getElementById('entityRoot');function text(tag,value,cls){const n=document.createElement(tag);n.textContent=value||'';if(cls)n.className=cls;return n;}async function render(){const id=new URLSearchParams(location.search).get('id');const entities=await window.MovieBlogEntities.loadEntities();const director=window.MovieBlogEntities.findEntity(entities.directors,id);if(!director){root.textContent='Director not found. Entity data will appear as the catalog grows.';return;}const canonical=new URL(`./director?id=${encodeURIComponent(director.id)}`,location.href).href;const description=(director.bio||`Learn about ${director.name}, including profile information and filmography on MovieBlog.`).slice(0,155);document.title=`${director.name} — MovieBlog`;document.querySelector('meta[name="description"]').setAttribute('content',description);document.querySelector('link[rel="canonical"]').setAttribute('href',canonical);document.querySelector('meta[property="og:title"]').setAttribute('content',`${director.name} — MovieBlog`);document.querySelector('meta[property="og:description"]').setAttribute('content',description);document.querySelector('meta[property="og:url"]').setAttribute('content',canonical);const article=document.createElement('article');article.className='card detail-card entity-card';const body=document.createElement('div');body.className='card-body';body.append(text('p','DIRECTOR','eyebrow'),text('h1',director.name),text('p',director.bio||'Director profile information.','overview'));if(Array.isArray(director.movies)&&director.movies.length){body.append(text('h2','Filmography'));const list=document.createElement('ul');list.className='entity-list';director.movies.forEach(movie=>{const li=document.createElement('li');const a=document.createElement('a');a.href=`../pages/movie?id=${encodeURIComponent(movie.id)}`;a.textContent=movie.title||movie.id;li.appendChild(a);list.appendChild(li);});body.appendChild(list);}article.appendChild(body);root.replaceChildren(article);const schema=document.createElement('script');schema.type='application/ld+json';schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'Person','@id':`${canonical}#person`,'url':canonical,'name':director.name,'jobTitle':'Director','description':director.bio||undefined});document.head.appendChild(schema);}document.addEventListener('DOMContentLoaded',render);})();
-</script></body></html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Director Profiles & Filmography — MovieBlog</title>
+<meta name="description" content="Explore film director biographies, credits and filmography on MovieBlog.">
+<meta name="robots" content="noindex,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<link rel="canonical" href="https://movie-blog-bdt.pages.dev/pages/director">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="MovieBlog">
+<meta property="og:title" content="Director Profiles & Filmography — MovieBlog">
+<meta property="og:description" content="Explore film director biographies, credits and filmography on MovieBlog.">
+<meta property="og:url" content="https://movie-blog-bdt.pages.dev/pages/director">
+<meta property="og:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Director Profiles & Filmography — MovieBlog">
+<meta name="twitter:description" content="Explore film director biographies, credits and filmography on MovieBlog.">
+<meta name="twitter:image" content="https://movie-blog-bdt.pages.dev/assets/placeholder.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/ui.css">
+<link rel="stylesheet" href="../assets/css/light-only.css">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="../" class="logo">🎬 MovieBlog</a>
+    <a class="icon-btn" href="../pages/search">Search</a>
+  </div>
+</header>
+<main class="container section">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="../">Home</a><span>›</span><span>Director</span>
+  </nav>
+  <div id="entityRoot" aria-live="polite">
+    <h1>Director profile</h1>
+    <p class="hero-copy">Loading verified director details…</p>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="container"><a href="../">← Back to MovieBlog</a></div>
+</footer>
+<script src="../assets/js/global-header.js" defer></script>
+<script>
+(() => {
+  const root = document.getElementById('entityRoot');
+  const IMAGE = 'https://image.tmdb.org/t/p/w342';
+  const PLACEHOLDER = '../assets/placeholder.png';
+  const rawId = new URLSearchParams(location.search).get('id') || '';
+
+  const make = (tag, value, className) => {
+    const node = document.createElement(tag);
+    if (value !== undefined && value !== null) node.textContent = String(value);
+    if (className) node.className = className;
+    return node;
+  };
+
+  const link = (label, href, className) => {
+    const node = document.createElement('a');
+    node.href = href;
+    node.textContent = label;
+    node.className = className || 'entity-link';
+    return node;
+  };
+
+  const slug = value => String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  async function getJSON(url) {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Provider returned HTTP ' + response.status);
+    return response.json();
+  }
+
+  async function catalogDirector(id) {
+    try {
+      const data = await getJSON('../data/entities.json');
+      const directors = Array.isArray(data.directors) ? data.directors : [];
+      return directors.find(item =>
+        String(item.id || '').toLowerCase() === String(id).toLowerCase() ||
+        slug(item.id) === slug(id) ||
+        slug(item.name) === slug(id)
+      ) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function resolveDirector(id) {
+    if (/^\d+$/.test(id)) {
+      return getJSON('../api/tmdb?mode=person&id=' + encodeURIComponent(id) + '&language=en-US');
+    }
+
+    const local = await catalogDirector(id);
+    const query = local && local.name ? local.name : String(id).replace(/[-_]+/g, ' ').trim();
+    if (!query) throw new Error('A director identifier is required');
+
+    const results = await getJSON('../api/tmdb?mode=person_search&query=' + encodeURIComponent(query) + '&language=en-US&page=1');
+    const people = Array.isArray(results.results) ? results.results : [];
+    if (!people.length) throw new Error('No matching person found');
+
+    const person = people.find(item => String(item.known_for_department || '').toLowerCase() === 'directing') || people[0];
+    if (!person || !person.id) throw new Error('No matching director found');
+
+    return getJSON('../api/tmdb?mode=person&id=' + encodeURIComponent(person.id) + '&language=en-US');
+  }
+
+  function setMeta(person, description) {
+    const canonical = new URL('./director?id=' + encodeURIComponent(person.id), location.href).href;
+    document.title = person.name + ' — Director Filmography | MovieBlog';
+    document.querySelector('meta[name="description"]').content = description;
+    document.querySelector('link[rel="canonical"]').href = canonical;
+    document.querySelector('meta[name="robots"]').content = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1';
+    document.querySelector('meta[property="og:title"]').content = document.title;
+    document.querySelector('meta[property="og:description"]').content = description;
+    document.querySelector('meta[property="og:url"]').content = canonical;
+    document.querySelector('meta[property="og:image"]').content = person.profile_path ? IMAGE + person.profile_path : new URL(PLACEHOLDER, location.href).href;
+    document.querySelector('meta[name="twitter:title"]').content = document.title;
+    document.querySelector('meta[name="twitter:description"]').content = description;
+    document.querySelector('meta[name="twitter:image"]').content = person.profile_path ? IMAGE + person.profile_path : new URL(PLACEHOLDER, location.href).href;
+    return canonical;
+  }
+
+  function unavailable(message) {
+    document.querySelector('meta[name="robots"]').content = 'noindex,follow';
+    root.replaceChildren(
+      make('h1', 'Director profile unavailable'),
+      make('p', message || 'We could not verify this director profile from our current provider. Please try again shortly.', 'muted'),
+      link('← Back to MovieBlog', '../', 'secondary-btn')
+    );
+  }
+
+  async function render() {
+    if (!rawId) {
+      root.replaceChildren(
+        make('h1', 'Director not specified'),
+        make('p', 'Open a director profile from a movie page to view verified credits and filmography.', 'hero-copy'),
+        link('Browse movies', '../pages/search', 'secondary-btn')
+      );
+      return;
+    }
+
+    try {
+      const person = await resolveDirector(rawId);
+      if (!person || !person.id || !person.name) throw new Error('No matching director found');
+
+      const credits = Array.isArray(person.combined_credits && person.combined_credits.crew)
+        ? person.combined_credits.crew
+        : [];
+      const films = credits
+        .filter(item => item && item.id && item.media_type !== 'tv' &&
+          (String(item.job || '').toLowerCase() === 'director' ||
+           String(item.department || '').toLowerCase() === 'directing'))
+        .sort((a, b) => String(b.release_date || '').localeCompare(String(a.release_date || '')));
+
+      if (String(person.known_for_department || '').toLowerCase() !== 'directing' && !films.length) {
+        throw new Error('The provider did not return verified directing credits for this person');
+      }
+
+      const description = String(person.biography || ('Explore ' + person.name + ' director credits, filmography and career details on MovieBlog.'))
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 175);
+      const canonical = setMeta(person, description);
+
+      const article = make('article');
+      article.className = 'card detail-card entity-card';
+      const body = make('div');
+      body.className = 'card-body';
+      body.append(make('p', 'DIRECTOR', 'eyebrow'));
+      body.append(make('h1', person.name));
+
+      if (person.profile_path) {
+        const image = document.createElement('img');
+        image.src = IMAGE + person.profile_path;
+        image.alt = person.name + ' profile photo';
+        image.loading = 'eager';
+        image.decoding = 'async';
+        image.className = 'poster';
+        body.append(image);
+      }
+
+      body.append(make('p', person.biography || 'A verified biographical summary is not available from the current provider.', 'overview'));
+      body.append(make('h2', 'Filmography'));
+
+      const uniqueFilms = [];
+      const seen = new Set();
+      for (const film of films) {
+        if (!seen.has(film.id)) {
+          seen.add(film.id);
+          uniqueFilms.push(film);
+        }
+      }
+
+      if (uniqueFilms.length) {
+        const list = make('div');
+        list.className = 'entity-list';
+        for (const film of uniqueFilms.slice(0, 50)) {
+          const item = make('div');
+          item.className = 'entity-item';
+          item.append(link(film.title || film.original_title || 'Movie', '../pages/movie?id=' + encodeURIComponent(film.id)));
+          if (film.release_date) item.append(make('span', ' • ' + String(film.release_date).slice(0, 4), 'meta'));
+          list.append(item);
+        }
+        body.append(list);
+      } else {
+        body.append(make('p', 'No verified movie directing credits are currently available.', 'muted'));
+      }
+
+      body.append(link('← Back to MovieBlog', '../', 'secondary-btn'));
+      article.append(body);
+      root.replaceChildren(article);
+
+      const schema = make('script');
+      schema.type = 'application/ld+json';
+      schema.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        '@id': canonical + '#person',
+        url: canonical,
+        name: person.name,
+        jobTitle: 'Film Director',
+        description: description,
+        image: person.profile_path ? IMAGE + person.profile_path : undefined
+      });
+      document.head.append(schema);
+    } catch (error) {
+      unavailable(error && error.message ? 'We could not load verified director details: ' + error.message + '.' : '');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', render);
+})();
+</script>
+</body>
+</html>

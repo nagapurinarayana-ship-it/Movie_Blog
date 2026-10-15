@@ -30,5 +30,24 @@ for (const [path, validator] of files) {
   }
 }
 
+try {
+  const fallback = await readFile('assets/js/live-content-safety-net.js', 'utf8');
+  if (/const\\s+FALLBACK_(BOX|OTT|NEWS|BUZZ|VIRAL)\\s*=/.test(fallback)) {
+    throw new Error('hard-coded fallback headlines/figures can become stale');
+  }
+  for (const required of [
+    'Box-office data temporarily unavailable',
+    'OTT availability could not be verified',
+    'No verified live reports available',
+    'We do not show old collection figures',
+  ]) {
+    if (!fallback.includes(required)) throw new Error(`missing safe fallback message: ${required}`);
+  }
+  console.log('PASS live-content fallback safety');
+} catch (error) {
+  failed = true;
+  console.error(`FAIL live-content fallback safety: ${error.message}`);
+}
+
 if (failed) process.exit(1);
 console.log('MovieBlog data validation passed.');

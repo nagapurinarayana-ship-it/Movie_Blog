@@ -96,6 +96,13 @@ for (const marker of ['mode=person_search', 'mode=person&id=', 'combined_credits
 }
 if (directorProfile.includes('innerHTML')) fail('director profile must render provider content with safe DOM APIs, not innerHTML')
 
+const actorProfile = await readFile('pages/actor.html', 'utf8')
+const movieTemplate = await readFile('pages/movie.html', 'utf8')
+const entityHelpers = await readFile('assets/js/entities.js', 'utf8')
+if (!actorProfile.includes('mode=person_search') || !actorProfile.includes('mode=person&id=')) fail('actor profile route is missing live TMDB resolution')
+if (!movieTemplate.includes('./actor?id=${encodeURIComponent(slug(name))}')) fail('movie cast links must use the live actor profile route')
+if (movieTemplate.includes('./person?id=')) fail('movie cast links must not route to the local-only person template')
+if (!entityHelpers.includes("type==='actor'?'actor':type")) fail('shared actor links must resolve to the live actor profile route')
 const sitemap = await readFile('sitemap.xml', 'utf8');
 for (const url of sitemapUrls) {
   if (!sitemap.includes(`<loc>${url}</loc>`)) fail(`sitemap missing canonical URL ${url}`);

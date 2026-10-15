@@ -32,7 +32,7 @@ for (const [path, validator] of files) {
 
 try {
   const fallback = await readFile('assets/js/live-content-safety-net.js', 'utf8');
-  if (/const\\s+FALLBACK_(BOX|OTT|NEWS|BUZZ|VIRAL)\\s*=/.test(fallback)) {
+  if (/const\s+FALLBACK_(BOX|OTT|NEWS|BUZZ|VIRAL)\s*=/.test(fallback)) {
     throw new Error('hard-coded fallback headlines/figures can become stale');
   }
   for (const required of [
